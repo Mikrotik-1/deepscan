@@ -556,7 +556,7 @@ function resetTxt(){document.getElementById('txtInput').value='';document.getEle
 function freeBanner(){return `<div class="free-banner"><div class="fb-icon">⚡</div><div class="fb-text"><div class="fb-title">${T[lang].fb_t}</div><div class="fb-sub">${T[lang].fb_s}</div></div><button class="soon-btn">${T[lang].soon}</button></div>`;}
 function runSteps(elId,key,cb){const steps=T[lang][key];const el=document.getElementById(elId);el.innerHTML=steps.map((s,i)=>`<div class="l-step" id="${elId}_${i}"><div class="l-dot"></div>${s}</div>`).join('');let i=0;const iv=setInterval(()=>{if(i>0)document.getElementById(`${elId}_${i-1}`)?.classList.replace('on','ok');if(i<steps.length){document.getElementById(`${elId}_${i}`)?.classList.add('on');i++;}else{clearInterval(iv);setTimeout(cb,400);}},260);}
 
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
 let installPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;document.getElementById('installBanner').style.display='flex';});
 function installApp(){if(!installPrompt)return;installPrompt.prompt();installPrompt.userChoice.then(()=>{document.getElementById('installBanner').style.display='none';installPrompt=null;});}
