@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>DeepScan — كاشف الذكاء الاصطناعي</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#04060f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DeepScan">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+    --bg:#04060f;--bg2:#080d1c;
+    --panel:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.07);
+    --cyan:#00e5ff;--cyan2:#0099bb;
+    --purple:#a855f7;--purple2:#7c3aed;
+    --red:#ff2d55;--green:#00ff88;--yellow:#ffd60a;
+    --grad:linear-gradient(135deg,var(--cyan),var(--purple));
+    --text:#dceeff;--muted:#3d5a7a;
+    --ar:'Tajawal',sans-serif;--mono:'Space Mono',monospace;--display:'Bebas Neue',cursive;
+    --nav-h:62px;--bottom-h:70px;
+    --safe-top:env(safe-area-inset-top,0px);
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
+body{
+    background:var(--bg);color:var(--text);font-family:var(--ar);
+    height:100%;overflow:hidden;
+    padding-top:calc(var(--nav-h) + var(--safe-top));
+    padding-bottom:calc(var(--bottom-h) + var(--safe-bottom));
+}
+body.en{direction:ltr;text-align:left;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,.018) 1px,transparent 1px);background-size:55px 55px;pointer-events:none;z-index:0;}
+
+/* TOP NAV */
+nav.top-nav{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    height:calc(var(--nav-h) + var(--safe-top));
+    padding-top:var(--safe-top);
+    display:flex;align-items:center;justify-content:space-between;
+    padding-left:1.2rem;padding-right:1.2rem;
+    background:rgba(4,6,15,.96);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border-bottom:1px solid var(--border);
+}
+.logo{font-family:var(--display);font-size:1.6rem;letter-spacing:3px;color:white;display:flex;align-items:center;gap:8px;text-decoration:none;}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--grad);box-shadow:0 0 10px var(--cyan);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.nav-r{display:flex;align-items:center;gap:8px;}
+.lang-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all .3s;}
+.free-tag{background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(168,85,247,.1));border:1px solid rgba(0,229,255,.2);color:var(--cyan);padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--mono);letter-spacing:1px;}
+
+/* SCROLL AREA */
+.app-scroll{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;z-index:1;}
+.app-scroll::-webkit-scrollbar{display:none;}
+.app-scroll{-ms-overflow-style:none;scrollbar-width:none;}
+
+/* SCREENS */
+.screen{display:none;min-height:100%;padding:1.2rem 1rem 1rem;}
+.screen.active{display:block;}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(168,85,247,.04));border:1px solid rgba(0,229,255,.12);border-radius:20px;padding:24px 20px;margin-bottom:1.2rem;text-align:center;position:relative;overflow:hidden;}
+.home-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(0,229,255,.12),transparent 70%);border-radius:50%;}
+.home-hero-lbl{font-family:var(--mono);font-size:9px;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;margin-bottom:.6rem;}
+.home-hero-h{font-family:var(--display);font-size:2.4rem;letter-spacing:2px;line-height:1;margin-bottom:.6rem;}
+.home-hero-h em{font-style:normal;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.home-hero-p{font-size:.82rem;color:var(--muted);line-height:1.7;margin-bottom:1.2rem;}
+.home-hero-cta{background:var(--grad);color:white;border:none;padding:13px 28px;border-radius:50px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:var(--ar);display:inline-flex;align-items:center;gap:8px;box-shadow:0 0 25px rgba(0,229,255,.2);transition:all .2s;}
+.home-hero-cta:active{transform:scale(.97);}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.2rem;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;}
+.stat-n{font-family:var(--mono);font-size:1.3rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-l{font-size:.65rem;color:var(--muted);margin-top:2px;}
+
+/* ACTION CARDS */
+.section-lbl{font-size:.72rem;color:var(--muted);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:.7rem;}
+.actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.2rem;}
+.action-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.action-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:.3s;}
+.action-card.img-card::before{background:linear-gradient(90deg,var(--cyan),var(--cyan2));}
+.action-card.txt-card::before{background:linear-gradient(90deg,var(--purple),var(--purple2));}
+.action-card:active{transform:scale(.97);}
+.action-card:active::before,.action-card:hover::before{opacity:1;}
+.ac-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:.8rem;}
+.ac-icon.c{background:rgba(0,229,255,.1);color:var(--cyan);}
+.ac-icon.p{background:rgba(168,85,247,.1);color:var(--purple);}
+.ac-title{font-weight:800;font-size:.95rem;margin-bottom:.2rem;}
+.ac-sub{font-size:.7rem;color:var(--muted);line-height:1.5;}
+.ac-arrow{position:absolute;bottom:14px;left:14px;color:var(--muted);font-size:.7rem;}
+body.en .ac-arrow{left:auto;right:14px;}
+
+/* CHIPS */
+.chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:7px 12px;font-size:.72rem;display:flex;align-items:center;gap:5px;}
+.chip.c{color:var(--cyan);border-color:rgba(0,229,255,.15);}
+.chip.p{color:var(--purple);border-color:rgba(168,85,247,.15);}
+.chip.g{color:var(--green);border-color:rgba(0,255,136,.15);}
+.chip.r{color:var(--red);border-color:rgba(255,45,85,.15);}
+
+/* SCAN SCREEN */
+.screen-header{margin-bottom:1.2rem;}
+.screen-title{font-size:1.3rem;font-weight:900;}
+.screen-sub{font-size:.78rem;color:var(--muted);margin-top:.2rem;}
+
+/* TABS */
+.tabs{display:flex;gap:6px;background:rgba(255,255,255,.03);border:1px solid var(--border);padding:5px;border-radius:12px;margin-bottom:1.2rem;}
+.tab{flex:1;padding:11px;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .3s;background:transparent;color:var(--muted);font-family:var(--ar);display:flex;align-items:center;justify-content:center;gap:7px;}
+.tab.active{background:var(--grad);color:white;box-shadow:0 4px 16px rgba(0,229,255,.2);}
+.tab:active:not(.active){transform:scale(.97);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* DROP ZONE */
+.drop-zone{border:1.5px dashed rgba(0,229,255,.2);border-radius:18px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .4s;background:var(--panel);position:relative;overflow:hidden;}
+.drop-zone:active,.drop-zone.over{border-color:var(--cyan);background:rgba(0,229,255,.04);}
+.dz-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 1rem;animation:fl 3s ease-in-out infinite;background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(168,85,247,.1));color:var(--cyan);}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.dz-title{font-size:1rem;font-weight:700;margin-bottom:.4rem;}
+.dz-sub{color:var(--muted);font-size:.78rem;}
+.dz-fmts{display:flex;justify-content:center;gap:6px;margin-top:.8rem;flex-wrap:wrap;}
+.fmt{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:3px 9px;border-radius:8px;font-size:9px;font-family:var(--mono);color:var(--muted);}
+#fi{display:none;}
+.prev-box{display:none;margin-top:.8rem;background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.prev-head{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);}
+#prevImg{width:100%;max-height:220px;object-fit:contain;padding:12px;}
+
+/* TEXT */
+.text-input{width:100%;min-height:170px;background:rgba(255,255,255,.03);border:1.5px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-family:var(--ar);font-size:.92rem;line-height:1.8;resize:none;outline:none;transition:border .3s;}
+.text-input:focus{border-color:var(--purple);}
+.text-meta{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.73rem;color:var(--muted);}
+.text-hint{font-size:.73rem;color:var(--muted);background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);border-radius:10px;padding:9px 12px;margin-top:.6rem;display:flex;align-items:center;gap:7px;}
+
+/* SCAN BTN */
+.scan-btn{width:100%;padding:14px;border-radius:13px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:var(--ar);border:none;display:none;align-items:center;justify-content:center;gap:10px;margin-top:.8rem;transition:all .2s;}
+.scan-btn.img-btn{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);box-shadow:0 0 20px rgba(0,229,255,.2);}
+.scan-btn.txt-btn{background:linear-gradient(135deg,var(--purple),var(--purple2));color:white;box-shadow:0 0 20px rgba(168,85,247,.2);}
+.scan-btn.show{display:flex;}
+.scan-btn:active{transform:scale(.98);}
+
+/* LOADING */
+.loading{display:none;padding:28px;text-align:center;}
+.loading.show{display:block;}
+.rings{width:80px;height:80px;position:relative;margin:0 auto .8rem;}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;animation:spin 1.4s linear infinite;}
+.ring:nth-child(1){border-top-color:var(--cyan);}
+.ring:nth-child(2){border-right-color:var(--purple);animation-duration:.95s;inset:10px;}
+.ring:nth-child(3){border-bottom-color:var(--green);animation-duration:.65s;inset:20px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring-core{position:absolute;inset:30px;background:var(--panel);border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;}
+.l-steps{margin-top:.8rem;}
+.l-step{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:8px;font-size:.78rem;color:var(--muted);margin-bottom:4px;transition:all .3s;max-width:360px;margin-left:auto;margin-right:auto;}
+.l-step.on{color:var(--cyan);background:rgba(0,229,255,.06);}
+.l-step.ok{color:var(--green);background:rgba(0,255,136,.06);}
+.l-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* RESULTS */
+.results{display:none;}
+.results.show{display:block;}
+.verdict{border-radius:16px;padding:20px;margin-top:.8rem;}
+.verdict.fake{background:rgba(255,45,85,.07);border:1.5px solid rgba(255,45,85,.28);}
+.verdict.real{background:rgba(0,255,136,.05);border:1.5px solid rgba(0,255,136,.22);}
+.verdict.sus{background:rgba(255,214,10,.05);border:1.5px solid rgba(255,214,10,.22);}
+.verdict.ai-text{background:rgba(168,85,247,.07);border:1.5px solid rgba(168,85,247,.28);}
+.verdict.human-text{background:rgba(0,255,136,.05);border:1.5px solid rgba(0,255,136,.22);}
+.v-head{display:flex;align-items:center;gap:12px;margin-bottom:1rem;}
+.v-emoji{font-size:1.8rem;}
+.v-info{flex:1;}
+.v-tag{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:2px;}
+.v-title{font-size:1.1rem;font-weight:900;}
+.v-pct{font-family:var(--mono);font-size:1.8rem;font-weight:700;}
+.bar-wrap{background:rgba(255,255,255,.05);border-radius:50px;height:8px;overflow:hidden;margin:.5rem 0 .3rem;}
+.bar{height:100%;border-radius:50px;width:0;transition:width 1.4s cubic-bezier(.25,.46,.45,.94);position:relative;overflow:hidden;}
+.bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:sh 2s infinite;}
+@keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.bar.fake{background:linear-gradient(90deg,var(--red),#ff6b88);}
+.bar.real{background:linear-gradient(90deg,var(--green),#00cc66);}
+.bar.sus{background:linear-gradient(90deg,var(--yellow),#ff9900);}
+.bar.ai-text{background:linear-gradient(90deg,var(--purple),#c084fc);}
+.bar.human-text{background:linear-gradient(90deg,var(--green),#00cc66);}
+.bar-lbls{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:var(--mono);}
+.inds{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:.8rem;}
+.ind{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;padding:11px;}
+.ind-h{font-size:.68rem;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.ind-v{font-family:var(--mono);font-size:.88rem;font-weight:700;}
+.bad{color:var(--red);}.good{color:var(--green);}.warn{color:var(--yellow);}.ai-c{color:var(--purple);}
+.dets{margin-top:.8rem;}
+.det{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.8rem;line-height:1.6;}
+.det:last-child{border:none;}
+.txt-inds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:.8rem;}
+.txt-ind{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;padding:11px;}
+.txt-ind-h{font-size:.68rem;color:var(--muted);margin-bottom:3px;}
+.txt-ind-bar{background:rgba(255,255,255,.06);border-radius:20px;height:5px;margin-top:5px;overflow:hidden;}
+.txt-ind-fill{height:100%;border-radius:20px;transition:width 1.2s ease;}
+.free-banner{background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(168,85,247,.04));border:1px solid rgba(0,229,255,.15);border-radius:12px;padding:12px;margin-top:.8rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.fb-icon{font-size:1.4rem;}
+.fb-text{flex:1;}
+.fb-title{font-weight:800;font-size:.85rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.fb-sub{font-size:.7rem;color:var(--muted);}
+.soon-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:7px 12px;border-radius:12px;font-size:.73rem;font-weight:700;cursor:pointer;font-family:var(--ar);white-space:nowrap;}
+.reset-btn{width:100%;margin-top:.7rem;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:10px;cursor:pointer;font-family:var(--ar);font-size:.83rem;transition:all .2s;}
+.reset-btn:active{background:rgba(255,255,255,.06);}
+
+/* LOCK */
+.scan-area{position:relative;}
+.analyzer-lock{display:none;position:absolute;inset:0;background:rgba(4,6,15,.92);border-radius:18px;z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:.7rem;text-align:center;backdrop-filter:blur(8px);padding:2rem;}
+.analyzer-lock.show{display:flex;}
+.lock-icon{font-size:2.5rem;}
+.lock-title{font-size:1.1rem;font-weight:800;color:white;}
+.lock-sub{font-size:.8rem;color:var(--muted);}
+.lock-btn{background:var(--grad);color:white;border:none;padding:12px 24px;border-radius:12px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:var(--ar);display:flex;align-items:center;gap:8px;}
+
+/* INFO SCREEN */
+.info-section{margin-bottom:1.5rem;}
+.info-lbl{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin-bottom:.8rem;}
+.how-steps{display:flex;flex-direction:column;gap:10px;}
+.how-step{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:flex-start;gap:12px;}
+.how-step-n{width:34px;height:34px;border-radius:50%;background:var(--grad);color:var(--bg);font-family:var(--mono);font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.how-step-t{font-weight:700;font-size:.88rem;margin-bottom:.2rem;}
+.how-step-d{font-size:.75rem;color:var(--muted);}
+.feat-cards{display:flex;flex-direction:column;gap:9px;}
+.feat-card{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;align-items:center;gap:12px;}
+.feat-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.fc{background:rgba(0,229,255,.08);color:var(--cyan);}
+.fp{background:rgba(168,85,247,.08);color:var(--purple);}
+.fg{background:rgba(0,255,136,.08);color:var(--green);}
+.fr{background:rgba(255,45,85,.08);color:var(--red);}
+.feat-t{font-weight:700;font-size:.88rem;margin-bottom:.15rem;}
+.feat-d{font-size:.73rem;color:var(--muted);}
+.plan-cards{display:flex;flex-direction:column;gap:10px;}
+.plan-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;}
+.plan-card.pro{border-color:rgba(0,229,255,.3);background:linear-gradient(135deg,rgba(0,229,255,.04),rgba(168,85,247,.03));}
+.plan-hot{display:inline-block;background:var(--grad);color:white;font-size:9px;font-weight:700;padding:3px 10px;border-radius:10px;font-family:var(--mono);margin-bottom:.5rem;}
+.plan-name{font-family:var(--mono);font-size:.68rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:.3rem;}
+.plan-price{font-family:var(--mono);font-size:2rem;font-weight:700;color:white;line-height:1;}
+.plan-period{font-size:.72rem;color:var(--muted);margin-bottom:.8rem;}
+.plan-feats{list-style:none;margin-bottom:.8rem;}
+.plan-feats li{padding:5px 0;border-bottom:1px solid var(--border);font-size:.8rem;display:flex;align-items:center;gap:6px;}
+.plan-feats li.dim{color:var(--muted);}
+.plan-btn{width:100%;padding:10px;border-radius:9px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:var(--ar);border:none;transition:all .2s;}
+.plan-btn.f{background:var(--panel);border:1px solid var(--border);color:var(--text);}
+.plan-btn.p{background:var(--grad);color:white;}
+.plan-btn:active{transform:scale(.98);}
+
+/* AUTH MODAL */
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:3000;display:flex;align-items:flex-end;justify-content:center;}
+.auth-box{background:var(--bg2);border:1px solid rgba(0,229,255,.2);border-radius:24px 24px 0 0;padding:1.4rem 1.4rem calc(1.4rem + var(--safe-bottom));width:100%;max-width:500px;position:relative;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.auth-handle{width:40px;height:4px;background:var(--muted);border-radius:2px;margin:0 auto 1rem;opacity:.4;}
+.auth-close{position:absolute;top:14px;left:14px;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;}
+.auth-logo{font-family:var(--display);font-size:1.2rem;letter-spacing:3px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem;}
+.auth-sub{font-size:.78rem;color:var(--muted);margin-bottom:1rem;}
+.auth-tabs{display:flex;gap:5px;background:rgba(255,255,255,.03);border:1px solid var(--border);padding:4px;border-radius:10px;margin-bottom:.8rem;}
+.auth-tab{flex:1;padding:9px;border:none;border-radius:7px;font-size:.83rem;font-weight:700;cursor:pointer;transition:all .3s;background:transparent;color:var(--muted);font-family:var(--ar);}
+.auth-tab.active{background:var(--grad);color:white;}
+.auth-input{width:100%;background:rgba(255,255,255,.03);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:var(--ar);font-size:.9rem;outline:none;transition:border .3s;margin-bottom:.65rem;display:block;}
+.auth-input:focus{border-color:var(--cyan);}
+.auth-btn{width:100%;padding:12px;border-radius:10px;font-size:.92rem;font-weight:800;cursor:pointer;font-family:var(--ar);border:none;background:var(--grad);color:white;display:flex;align-items:center;justify-content:center;gap:8px;}
+.auth-btn:active{transform:scale(.98);}
+.auth-btn:disabled{opacity:.6;}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:.65rem 0;color:var(--muted);font-size:.75rem;}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.auth-google{width:100%;padding:11px;border-radius:10px;font-size:.83rem;font-weight:700;cursor:pointer;font-family:var(--ar);border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);display:flex;align-items:center;justify-content:center;gap:9px;}
+.auth-msg{padding:8px 12px;border-radius:8px;font-size:.76rem;margin-bottom:.65rem;display:none;}
+.auth-msg.err{background:rgba(255,45,85,.1);border:1px solid rgba(255,45,85,.2);color:var(--red);display:block;}
+.auth-msg.ok{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:var(--green);display:block;}
+
+/* NAV USER */
+.user-btn{background:var(--grad);border:none;color:white;padding:6px 13px;border-radius:18px;cursor:pointer;font-size:.73rem;font-weight:700;font-family:var(--ar);display:flex;align-items:center;gap:6px;}
+.user-menu-wrap{position:relative;display:none;}
+.user-dropdown{position:absolute;top:calc(100% + 8px);left:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:8px;min-width:200px;box-shadow:0 20px 40px rgba(0,0,0,.6);z-index:500;}
+.user-email-disp{padding:7px 10px;font-size:.7rem;color:var(--muted);font-family:var(--mono);border-bottom:1px solid var(--border);margin-bottom:5px;word-break:break-all;}
+.user-usage{padding:7px 10px;border-bottom:1px solid var(--border);margin-bottom:5px;}
+.usage-lbl{font-size:.68rem;color:var(--muted);margin-bottom:3px;}
+.usage-bar-bg{background:rgba(255,255,255,.06);border-radius:20px;height:4px;overflow:hidden;}
+.usage-bar-fill{height:100%;border-radius:20px;background:var(--grad);transition:width .5s;}
+.usage-num{font-size:.67rem;color:var(--muted);margin-top:3px;font-family:var(--mono);}
+.u-drop-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;font-size:.8rem;cursor:pointer;transition:.3s;color:var(--text);border:none;background:none;width:100%;font-family:var(--ar);}
+.u-drop-item:hover{background:rgba(255,255,255,.05);}
+.u-drop-item.red{color:var(--red);}
+
+/* BOTTOM NAV */
+.bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:1000;
+    height:calc(var(--bottom-h) + var(--safe-bottom));
+    padding-bottom:var(--safe-bottom);
+    display:flex;align-items:center;justify-content:space-around;
+    background:rgba(4,6,15,.97);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border-top:1px solid var(--border);
+}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 0;transition:all .2s;border:none;background:none;color:var(--muted);font-family:var(--ar);}
+.bn-item.active{color:var(--cyan);}
+.bn-item:active{transform:scale(.9);}
+.bn-icon{font-size:1.2rem;transition:all .2s;}
+.bn-item.active .bn-icon{filter:drop-shadow(0 0 6px var(--cyan));}
+.bn-label{font-size:.63rem;font-weight:700;}
+
+/* INSTALL BANNER */
+#installBanner{display:none;position:fixed;bottom:calc(var(--bottom-h) + var(--safe-bottom) + 10px);left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#080d1c,#0d1428);border:1px solid rgba(0,229,255,.3);border-radius:14px;padding:12px 16px;z-index:9990;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.6);max-width:340px;width:90%;}
+.ib-icon{font-size:1.5rem;}
+.ib-text{flex:1;}
+.ib-title{font-weight:800;font-size:.83rem;color:white;}
+.ib-sub{font-size:.68rem;color:var(--muted);}
+.ib-btn{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;padding:8px 14px;border-radius:9px;font-weight:800;cursor:pointer;font-size:.78rem;white-space:nowrap;font-family:var(--ar);}
+.ib-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px;}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;transition:opacity .5s ease,visibility .5s ease;}
+#splash.hide{opacity:0;visibility:hidden;}
+.splash-logo{font-family:var(--display);font-size:3rem;letter-spacing:4px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.splash-sub{font-family:var(--mono);font-size:.68rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+.splash-ring{width:44px;height:44px;position:relative;margin-top:.5rem;}
+.splash-ring-inner{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:var(--cyan);animation:spin .8s linear infinite;}
+
+@media(min-width:600px){
+    .plan-cards{flex-direction:row;}
+    .plan-card{flex:1;}
+    .screen{padding:1.5rem;}
+}
+</style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const firebaseConfig={apiKey:"AIzaSyCU5SVOYI4yRl-BbdheCExczpwDxuWIxeI",authDomain:"deepscan-46e25.firebaseapp.com",projectId:"deepscan-46e25",storageBucket:"deepscan-46e25.firebasestorage.app",messagingSenderId:"412703112943",appId:"1:412703112943:web:94ff55a6c8f485ecb0651a"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const googleProvider=new GoogleAuthProvider();
+const FREE_LIMIT=3;
+function getTodayKey(){return 'ds_usage_'+new Date().toDateString();}
+function getUsage(){return parseInt(localStorage.getItem(getTodayKey())||'0');}
+function incUsage(){localStorage.setItem(getTodayKey(),getUsage()+1);updateUsageUI();}
+function canAnalyze(){return getUsage()<FREE_LIMIT;}
+function updateUsageUI(){const used=getUsage(),el=document.getElementById('usageCount'),bar=document.getElementById('usageBar');if(el)el.textContent=used+' / '+FREE_LIMIT;if(bar)bar.style.width=Math.min((used/FREE_LIMIT)*100,100)+'%';}
+onAuthStateChanged(auth,user=>{window._dsUser=user;updateNavUI(user);updateAnalyzerLock(user);updateUsageUI();});
+function updateNavUI(user){const lb=document.getElementById('navLoginBtn'),um=document.getElementById('userMenuWrap'),ue=document.getElementById('userEmailDisplay');if(!lb||!um)return;if(user){lb.style.display='none';um.style.display='flex';if(ue)ue.textContent=user.email||'مستخدم';}else{lb.style.display='flex';um.style.display='none';}}
+function updateAnalyzerLock(user){const lock=document.getElementById('analyzerLock');if(!lock)return;user?lock.classList.remove('show'):lock.classList.add('show');}
+window._dsAuth={signUp:(e,p)=>createUserWithEmailAndPassword(auth,e,p),signIn:(e,p)=>signInWithEmailAndPassword(auth,e,p),signOut:()=>signOut(auth),googleSignIn:()=>signInWithPopup(auth,googleProvider),resetPassword:(e)=>sendPasswordResetEmail(auth,e),canAnalyze,incUsage,getUsage,FREE_LIMIT};
+</script>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-logo">DEEPSCAN</div>
+  <div class="splash-sub">كاشف الذكاء الاصطناعي</div>
+  <div class="splash-ring"><div class="splash-ring-inner"></div></div>
+</div>
+
+<nav class="top-nav">
+  <a href="#" class="logo"><span class="logo-dot"></span>DEEPSCAN</a>
+  <div class="nav-r">
+    <button class="lang-btn" onclick="toggleLang()" id="lBtn">EN</button>
+    <button id="navLoginBtn" onclick="openAuth()" style="background:var(--grad);border:none;color:white;padding:6px 13px;border-radius:18px;cursor:pointer;font-size:.73rem;font-weight:700;font-family:var(--ar);display:flex;align-items:center;gap:5px;"><i class="fas fa-sign-in-alt"></i><span data-i18n="login_btn">دخول</span></button>
+    <div class="user-menu-wrap" id="userMenuWrap" onclick="toggleUserMenu()">
+      <button class="user-btn"><i class="fas fa-user-circle"></i><span id="userEmailDisplay">—</span><i class="fas fa-chevron-down" style="font-size:.5rem"></i></button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-email-disp" id="userEmailDisp">—</div>
+        <div class="user-usage"><div class="usage-lbl" data-i18n="usage_lbl">التحليلات اليوم</div><div class="usage-bar-bg"><div class="usage-bar-fill" id="usageBar" style="width:0%"></div></div><div class="usage-num" id="usageCount">0 / 3</div></div>
+        <button class="u-drop-item red" onclick="doSignOut()"><i class="fas fa-sign-out-alt"></i><span data-i18n="logout_btn">تسجيل الخروج</span></button>
+      </div>
+    </div>
+    <span class="free-tag" data-i18n="free_tag">مجاني</span>
+  </div>
+</nav>
+
+<div class="app-scroll" id="appScroll">
+
+  <!-- HOME -->
+  <div class="screen active" id="screenHome">
+    <div class="home-hero">
+      <div class="home-hero-lbl" data-i18n="eye">كاشف الذكاء الاصطناعي</div>
+      <div class="home-hero-h"><em data-i18n="h1b">حقيقي أم مزوّر؟</em></div>
+      <p class="home-hero-p" data-i18n="hero_p">اكشف الصور المصنوعة بالذكاء الاصطناعي والنصوص المكتوبة بـ ChatGPT وغيره — في ثوانٍ ومجاناً</p>
+      <button class="home-hero-cta" onclick="goToScan()"><i class="fas fa-search"></i><span data-i18n="cta">ابدأ التحليل مجاناً</span></button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-n">95%</div><div class="stat-l" data-i18n="s1">دقة التحليل</div></div>
+      <div class="stat-card"><div class="stat-n">&lt;3s</div><div class="stat-l" data-i18n="s2">سرعة الكشف</div></div>
+      <div class="stat-card"><div class="stat-n">2</div><div class="stat-l" data-i18n="s3">أداة</div></div>
+    </div>
+    <div class="section-lbl" data-i18n="quick_title">تحليل سريع</div>
+    <div class="actions-grid">
+      <div class="action-card img-card" onclick="goToScan('img')"><div class="ac-icon c"><i class="fas fa-image"></i></div><div class="ac-title" data-i18n="tab_img">تحليل صورة</div><div class="ac-sub" data-i18n="f1d">Midjourney، DALL-E، Stable Diffusion</div><div class="ac-arrow"><i class="fas fa-arrow-left"></i></div></div>
+      <div class="action-card txt-card" onclick="goToScan('txt')"><div class="ac-icon p"><i class="fas fa-font"></i></div><div class="ac-title" data-i18n="tab_txt">تحليل نص</div><div class="ac-sub" data-i18n="f2d">ChatGPT، Claude، Gemini</div><div class="ac-arrow"><i class="fas fa-arrow-left"></i></div></div>
+    </div>
+    <div class="section-lbl" data-i18n="f_lbl">القدرات</div>
+    <div class="chips">
+      <div class="chip c"><i class="fas fa-robot"></i><span data-i18n="f1t">صور AI</span></div>
+      <div class="chip p"><i class="fas fa-font"></i><span data-i18n="f2t">نصوص AI</span></div>
+      <div class="chip g"><i class="fas fa-fingerprint"></i><span data-i18n="f3t">بصمة الكاميرا</span></div>
+      <div class="chip r"><i class="fas fa-lock"></i><span data-i18n="f4t">خصوصية تامة</span></div>
+    </div>
+  </div>
+
+  <!-- SCAN -->
+  <div class="screen" id="screenScan">
+    <div class="screen-header"><div class="screen-title" data-i18n="sc_h2">اختر نوع التحليل</div><div class="screen-sub" data-i18n="sc_lbl">محرك التحليل</div></div>
+
+    <div class="auth-overlay" id="authOverlay" style="display:none;" onclick="if(event.target===this)closeAuth()">
+      <div class="auth-box">
+        <div class="auth-handle"></div>
+        <button class="auth-close" onclick="closeAuth()"><i class="fas fa-times"></i></button>
+        <div class="auth-logo">[ DEEPSCAN ]</div>
+        <div class="auth-sub" id="authSubText">سجل الدخول للبدء في التحليل</div>
+        <div class="auth-tabs"><button class="auth-tab active" onclick="switchAuthTab('login')" id="authTabLogin" data-i18n="login_tab">دخول</button><button class="auth-tab" onclick="switchAuthTab('signup')" id="authTabSignup" data-i18n="signup_tab">حساب جديد</button></div>
+        <div class="auth-msg" id="authMsg"></div>
+        <input type="email" class="auth-input" id="authEmail" placeholder="البريد الإلكتروني" autocomplete="email">
+        <input type="password" class="auth-input" id="authPass" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
+        <input type="password" class="auth-input" id="authPass2" placeholder="تأكيد كلمة المرور" style="display:none" autocomplete="new-password">
+        <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()"><i class="fas fa-sign-in-alt"></i><span id="authBtnText">دخول</span></button>
+        <div style="text-align:center;margin-top:.6rem;"><button onclick="showReset()" style="background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;font-family:var(--ar);" id="forgotBtn">نسيت كلمة المرور؟</button></div>
+        <div class="auth-divider" data-i18n="or_divider">أو</div>
+        <button class="auth-google" onclick="googleAuth()">
+          <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706s.102-1.166.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/></svg>
+          <span data-i18n="google_btn">متابعة بـ Google</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('img')" id="tabImg"><i class="fas fa-image"></i><span data-i18n="tab_img">تحليل صورة</span></button>
+      <button class="tab" onclick="switchTab('txt')" id="tabTxt"><i class="fas fa-font"></i><span data-i18n="tab_txt">تحليل نص</span></button>
+    </div>
+
+    <div class="scan-area" id="analyzer">
+      <div class="analyzer-lock" id="analyzerLock">
+        <div class="lock-icon">🔐</div>
+        <div class="lock-title" data-i18n="lock_title">سجل الدخول أولاً</div>
+        <div class="lock-sub" data-i18n="lock_sub">التحليل مجاني — فقط محتاج حساب</div>
+        <button class="lock-btn" onclick="openAuth()"><i class="fas fa-sign-in-alt"></i><span data-i18n="lock_btn">دخول / تسجيل</span></button>
+      </div>
+
+      <div class="tab-panel active" id="panelImg">
+        <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()" ondragover="ev(event,1)" ondragleave="ev(event,0)" ondrop="drop(event)">
+          <div class="dz-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="dz-title" data-i18n="dz_t">اسحب الصورة أو اضغط للاختيار</div>
+          <div class="dz-sub" data-i18n="dz_s">صورتك لن تُحفظ — التحليل يتم على جهازك</div>
+          <div class="dz-fmts"><span class="fmt">JPG</span><span class="fmt">PNG</span><span class="fmt">WEBP</span><span class="fmt">20MB</span></div>
+        </div>
+        <input type="file" id="fi" accept="image/*" onchange="loadImg(this.files[0])">
+        <div class="prev-box" id="prevBox"><div class="prev-head"><span id="fName">—</span><span id="fSize" style="font-family:var(--mono)">—</span></div><img id="prevImg" src="" alt=""></div>
+        <button class="scan-btn img-btn" id="imgBtn" onclick="goImg()"><i class="fas fa-eye"></i><span data-i18n="img_btn">تحليل الصورة الآن</span></button>
+        <div class="loading" id="imgLoad"><div class="rings"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring-core"><i class="fas fa-image"></i></div></div><div style="font-size:.8rem;color:var(--muted);" data-i18n="img_scanning">جاري فحص الصورة...</div><div class="l-steps" id="imgSteps"></div></div>
+        <div class="results" id="imgRes"></div>
+      </div>
+
+      <div class="tab-panel" id="panelTxt">
+        <textarea class="text-input" id="txtInput" placeholder="الصق النص هنا للتحقق هل كتبه إنسان أم ذكاء اصطناعي..." oninput="onTxtInput()"></textarea>
+        <div class="text-meta"><span><span id="wCount">0</span> <span data-i18n="words">كلمة</span></span><span data-i18n="txt_min">الحد الأدنى: 30 كلمة</span></div>
+        <div class="text-hint"><i class="fas fa-robot" style="color:var(--purple)"></i><span data-i18n="txt_hint">يكتشف نصوص ChatGPT وClaude وGemini وCopilot وغيرها</span></div>
+        <button class="scan-btn txt-btn" id="txtBtn" onclick="goTxt()"><i class="fas fa-search"></i><span data-i18n="txt_btn">تحليل النص الآن</span></button>
+        <div class="loading" id="txtLoad"><div class="rings"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring-core"><i class="fas fa-font"></i></div></div><div style="font-size:.8rem;color:var(--muted);" data-i18n="txt_scanning">جاري تحليل النص...</div><div class="l-steps" id="txtSteps"></div></div>
+        <div class="results" id="txtRes"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="screen" id="screenInfo">
+    <div class="screen-header"><div class="screen-title" data-i18n="f_h2">ماذا يكشف DeepScan؟</div><div class="screen-sub" data-i18n="f_lbl">القدرات</div></div>
+    <div class="info-section">
+      <div class="info-lbl" data-i18n="h_lbl">كيف يعمل</div>
+      <div class="how-steps">
+        <div class="how-step"><div class="how-step-n">01</div><div><div class="how-step-t" data-i18n="st1">ارفع أو الصق</div><div class="how-step-d" data-i18n="sd1">صورة أو نص — كل المحتوى مدعوم</div></div></div>
+        <div class="how-step"><div class="how-step-n">02</div><div><div class="how-step-t" data-i18n="st2">التحليل التلقائي</div><div class="how-step-d" data-i18n="sd2">خوارزميات متقدمة تفحص المحتوى في ثوانٍ</div></div></div>
+        <div class="how-step"><div class="how-step-n">03</div><div><div class="how-step-t" data-i18n="st3">النتيجة الفورية</div><div class="how-step-d" data-i18n="sd3">نسبة مئوية + تقرير مفصل لكل مؤشر</div></div></div>
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="info-lbl" data-i18n="f_lbl">القدرات</div>
+      <div class="feat-cards">
+        <div class="feat-card"><div class="feat-icon fc"><i class="fas fa-robot"></i></div><div><div class="feat-t" data-i18n="f1t">صور الذكاء الاصطناعي</div><div class="feat-d" data-i18n="f1d">يكشف Midjourney وDALL-E وStable Diffusion وFirefly</div></div></div>
+        <div class="feat-card"><div class="feat-icon fp"><i class="fas fa-font"></i></div><div><div class="feat-t" data-i18n="f2t">نصوص AI</div><div class="feat-d" data-i18n="f2d">يكتشف ما كتبه ChatGPT وClaude وGemini وغيرهم</div></div></div>
+        <div class="feat-card"><div class="feat-icon fg"><i class="fas fa-fingerprint"></i></div><div><div class="feat-t" data-i18n="f3t">بصمة الكاميرا</div><div class="feat-d" data-i18n="f3d">يتحقق من EXIF ومصدر الصورة وتوقيت الالتقاط</div></div></div>
+        <div class="feat-card"><div class="feat-icon fr"><i class="fas fa-lock"></i></div><div><div class="feat-t" data-i18n="f4t">خصوصية تامة</div><div class="feat-d" data-i18n="f4d">الصور تُحلَّل محلياً — النصوص بدون حفظ بياناتك</div></div></div>
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="info-lbl" data-i18n="p_lbl">الأسعار</div>
+      <div class="plan-cards">
+        <div class="plan-card"><div class="plan-name" data-i18n="pn1">مجاني</div><div class="plan-price">$0</div><div class="plan-period" data-i18n="pp1">للأبد</div><ul class="plan-feats"><li><i class="fas fa-check good"></i><span data-i18n="pf1">3 تحليلات يومياً</span></li><li><i class="fas fa-check good"></i><span data-i18n="pf2">صور + نصوص</span></li><li><i class="fas fa-check good"></i><span data-i18n="pf3">نتيجة فورية</span></li><li class="dim"><i class="fas fa-times" style="color:var(--muted)"></i><span data-i18n="pf4">تقرير PDF</span></li><li class="dim"><i class="fas fa-times" style="color:var(--muted)"></i><span data-i18n="pf5">تحليل فيديو</span></li></ul><button class="plan-btn f" data-i18n="pb1">ابدأ مجاناً</button></div>
+        <div class="plan-card pro"><div class="plan-hot" data-i18n="hot">الأكثر طلباً</div><div class="plan-name" data-i18n="pn2">احترافي</div><div class="plan-price">$5</div><div class="plan-period" data-i18n="pp2">شهرياً</div><ul class="plan-feats"><li><i class="fas fa-check good"></i><span data-i18n="pp_1">تحليلات غير محدودة</span></li><li><i class="fas fa-check good"></i><span data-i18n="pp_2">تحليل فيديو قريباً</span></li><li><i class="fas fa-check good"></i><span data-i18n="pp_3">تقرير PDF مفصل</span></li><li><i class="fas fa-check good"></i><span data-i18n="pp_4">كشف Deepfake</span></li><li><i class="fas fa-check good"></i><span data-i18n="pp_5">دعم فني أولوية</span></li></ul><button class="plan-btn p" data-i18n="pb2">قريباً 🔒</button></div>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:.68rem;font-family:var(--mono);padding:1rem 0 .5rem;">© 2026 DeepScan</div>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <button class="bn-item active" id="bnHome" onclick="switchScreen('home')"><div class="bn-icon"><i class="fas fa-home"></i></div><div class="bn-label" data-i18n="bn_home">الرئيسية</div></button>
+  <button class="bn-item" id="bnScan" onclick="switchScreen('scan')"><div class="bn-icon"><i class="fas fa-search"></i></div><div class="bn-label" data-i18n="bn_scan">تحليل</div></button>
+  <button class="bn-item" id="bnInfo" onclick="switchScreen('info')"><div class="bn-icon"><i class="fas fa-info-circle"></i></div><div class="bn-label" data-i18n="bn_info">معلومات</div></button>
+</nav>
+
+<div id="installBanner">
+  <div class="ib-icon">📲</div>
+  <div class="ib-text"><div class="ib-title">نزّل التطبيق مجاناً</div><div class="ib-sub">يشتغل بدون إنترنت على موبايلك</div></div>
+  <button class="ib-btn" onclick="installApp()">تنزيل</button>
+  <button class="ib-close" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
+</div>
+
+<script>
+function switchScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));document.getElementById('screen'+n.charAt(0).toUpperCase()+n.slice(1)).classList.add('active');document.getElementById('bn'+n.charAt(0).toUpperCase()+n.slice(1)).classList.add('active');document.getElementById('appScroll').scrollTop=0;}
+function goToScan(tab){switchScreen('scan');if(tab)switchTab(tab);}
+
+let authMode='login';
+function openAuth(){document.getElementById('authOverlay').style.display='flex';}
+function closeAuth(){document.getElementById('authOverlay').style.display='none';clearAuthMsg();}
+function switchAuthTab(mode){authMode=mode;const isLogin=mode==='login';document.getElementById('authTabLogin').classList.toggle('active',isLogin);document.getElementById('authTabSignup').classList.toggle('active',!isLogin);document.getElementById('authPass2').style.display=isLogin?'none':'block';document.getElementById('authBtnText').textContent=isLogin?(lang==='ar'?'دخول':'Sign In'):(lang==='ar'?'إنشاء حساب':'Sign Up');document.getElementById('forgotBtn').style.display=isLogin?'block':'none';clearAuthMsg();}
+function showAuthMsg(msg,type){const el=document.getElementById('authMsg');el.textContent=msg;el.className='auth-msg '+type;}
+function clearAuthMsg(){const el=document.getElementById('authMsg');el.className='auth-msg';el.textContent='';}
+async function submitAuth(){const email=document.getElementById('authEmail').value.trim(),pass=document.getElementById('authPass').value,pass2=document.getElementById('authPass2').value,btn=document.getElementById('authSubmitBtn');if(!email||!pass){showAuthMsg(lang==='ar'?'أدخل الإيميل وكلمة المرور':'Enter email and password','err');return;}if(authMode==='signup'&&pass!==pass2){showAuthMsg(lang==='ar'?'كلمة المرور غير متطابقة':'Passwords do not match','err');return;}if(pass.length<6){showAuthMsg(lang==='ar'?'كلمة المرور 6 أحرف على الأقل':'Min 6 characters','err');return;}btn.disabled=true;try{if(authMode==='login'){await window._dsAuth.signIn(email,pass);closeAuth();}else{await window._dsAuth.signUp(email,pass);showAuthMsg(lang==='ar'?'✅ تم إنشاء الحساب!':'✅ Account created!','ok');setTimeout(closeAuth,1200);}}catch(e){const msgs={'auth/user-not-found':lang==='ar'?'الحساب غير موجود':'Account not found','auth/wrong-password':lang==='ar'?'كلمة المرور خاطئة':'Wrong password','auth/email-already-in-use':lang==='ar'?'الإيميل مستخدم بالفعل':'Email already in use','auth/invalid-email':lang==='ar'?'إيميل غير صحيح':'Invalid email','auth/invalid-credential':lang==='ar'?'بيانات الدخول غير صحيحة':'Invalid credentials'};showAuthMsg(msgs[e.code]||e.message,'err');}btn.disabled=false;}
+async function googleAuth(){try{await window._dsAuth.googleSignIn();closeAuth();}catch(e){showAuthMsg(lang==='ar'?'فشل تسجيل الدخول بـ Google':'Google sign-in failed','err');}}
+async function showReset(){const email=document.getElementById('authEmail').value.trim();if(!email){showAuthMsg(lang==='ar'?'أدخل إيميلك أولاً':'Enter your email first','err');return;}try{await window._dsAuth.resetPassword(email);showAuthMsg(lang==='ar'?'✅ تم إرسال رابط الاستعادة':'✅ Reset link sent','ok');}catch(e){showAuthMsg(lang==='ar'?'فشل الإرسال':'Failed','err');}}
+async function doSignOut(){await window._dsAuth.signOut();document.getElementById('userDropdown').style.display='none';}
+function toggleUserMenu(){const dd=document.getElementById('userDropdown');dd.style.display=dd.style.display==='block'?'none':'block';}
+document.addEventListener('click',e=>{const wrap=document.getElementById('userMenuWrap');if(wrap&&!wrap.contains(e.target)){const dd=document.getElementById('userDropdown');if(dd)dd.style.display='none';}});
+
+const _origGoImg=goImg,_origGoTxt=goTxt;
+window.goImg=function(){if(!window._dsUser){openAuth();return;}if(!window._dsAuth.canAnalyze()){alert(lang==='ar'?'وصلت للحد اليومي (3 تحليلات) — جرب غداً':'Daily limit reached');return;}window._dsAuth.incUsage();_origGoImg();};
+window.goTxt=function(){if(!window._dsUser){openAuth();return;}if(!window._dsAuth.canAnalyze()){alert(lang==='ar'?'وصلت للحد اليومي (3 تحليلات) — جرب غداً':'Daily limit reached');return;}window._dsAuth.incUsage();_origGoTxt();};
+
+const T={ar:{free_tag:'مجاني',eye:'كاشف الذكاء الاصطناعي',h1a:'هل هذا المحتوى',h1b:'حقيقي أم مزوّر؟',hero_p:'اكشف الصور المصنوعة بالذكاء الاصطناعي والنصوص المكتوبة بـ ChatGPT وغيره — في ثوانٍ ومجاناً',s1:'دقة التحليل',s2:'سرعة الكشف',s3:'أداة',cta:'ابدأ التحليل مجاناً',quick_title:'تحليل سريع',sc_lbl:'محرك التحليل',sc_h2:'اختر نوع التحليل',tab_img:'تحليل صورة',tab_txt:'تحليل نص',dz_t:'اسحب الصورة أو اضغط للاختيار',dz_s:'صورتك لن تُحفظ — التحليل يتم على جهازك',img_btn:'تحليل الصورة الآن',img_scanning:'جاري فحص الصورة...',words:'كلمة',txt_min:'الحد الأدنى: 30 كلمة',txt_hint:'يكتشف نصوص ChatGPT وClaude وGemini وCopilot وغيرها',txt_btn:'تحليل النص الآن',txt_scanning:'جاري تحليل النص...',rl:'حقيقية',fl:'مزورة',rl2:'بشري',fl2:'AI',fb_t:'التحليل الأساسي مجاني',fb_s:'للتحليل العميق + تقرير PDF + تحليل فيديو — جرّب النسخة الاحترافية',soon:'قريباً 🔒',again:'تحليل آخر',f_lbl:'القدرات',f_h2:'ماذا يكشف DeepScan؟',f1t:'صور الذكاء الاصطناعي',f1d:'يكشف Midjourney وDALL-E وStable Diffusion وFirefly',f2t:'نصوص AI',f2d:'يكتشف ما كتبه ChatGPT وClaude وGemini وغيرهم',f3t:'بصمة الكاميرا',f3d:'يتحقق من EXIF ومصدر الصورة وتوقيت الالتقاط',f4t:'خصوصية تامة',f4d:'الصور تُحلَّل محلياً — النصوص بدون حفظ بياناتك',h_lbl:'كيف يعمل',h_h2:'3 خطوات بسيطة',st1:'ارفع أو الصق',sd1:'صورة أو نص — كل المحتوى مدعوم',st2:'التحليل التلقائي',sd2:'خوارزميات متقدمة تفحص المحتوى في ثوانٍ',st3:'النتيجة الفورية',sd3:'نسبة مئوية + تقرير مفصل لكل مؤشر',p_lbl:'الأسعار',p_h2:'ابدأ مجاناً',pn1:'مجاني',pp1:'للأبد',pf1:'3 تحليلات يومياً',pf2:'صور + نصوص',pf3:'نتيجة فورية',pf4:'تقرير PDF',pf5:'تحليل فيديو',pb1:'ابدأ مجاناً',hot:'الأكثر طلباً',pn2:'احترافي',pp2:'شهرياً',pp_1:'تحليلات غير محدودة',pp_2:'تحليل فيديو قريباً',pp_3:'تقرير PDF مفصل',pp_4:'كشف Deepfake',pp_5:'دعم فني أولوية',pb2:'قريباً 🔒',ft:'كاشف الصور والنصوص المزورة بالذكاء الاصطناعي',login_btn:'دخول',logout_btn:'تسجيل الخروج',usage_lbl:'التحليلات اليوم',login_tab:'دخول',signup_tab:'حساب جديد',or_divider:'أو',google_btn:'متابعة بـ Google',lock_title:'سجل الدخول أولاً',lock_sub:'التحليل مجاني — فقط محتاج حساب',lock_btn:'دخول / تسجيل',bn_home:'الرئيسية',bn_scan:'تحليل',bn_info:'معلومات',img_steps:['فحص بيانات EXIF والميتاداتا...','تحليل أنماط الضوضاء الرقمية...','فحص توزيع الألوان...','تحليل حدة الحواف...','مقارنة بصمات الذكاء الاصطناعي...','إعداد التقرير النهائي...'],txt_steps:['فحص بنية الجمل والأنماط...','تحليل التنوع اللغوي...','كشف القوالب المتكررة...','مقارنة مع نماذج AI المعروفة...','إعداد التقرير النهائي...'],v_fake:'مزورة / مصنوعة بالذكاء الاصطناعي',v_real:'حقيقية وأصلية',v_sus:'مشبوهة',v_ai:'مكتوب بالذكاء الاصطناعي',v_human:'مكتوب بواسطة إنسان',v_mixed:'مختلط — بشري وAI',tag_fake:'⚠️ مزورة',tag_real:'✅ حقيقية',tag_sus:'⚡ مشبوهة',tag_ai:'🤖 ذكاء اصطناعي',tag_human:'✍️ إنساني',tag_mixed:'⚡ مختلط',in_noise:'ضوضاء',in_exif:'EXIF',in_color:'الألوان',in_pat:'الأنماط',in_rep:'التكرار',in_nat:'طبيعية اللغة',in_var:'تنوع الجمل',in_fmt:'التنسيق',d_fake:['🔴 ضوضاء رقمية منخفضة جداً — علامة كلاسيكية لصور AI','🔴 لا توجد بيانات EXIF — لم تُلتقط بكاميرا حقيقية','🟡 توزيع الألوان يبدو مصطنعاً','🔴 أنماط الحواف تشير لتوليد رقمي'],d_real:['🟢 ضوضاء رقمية طبيعية — تتوافق مع كاميرات حقيقية','🟢 بيانات EXIF أصلية موجودة','🟢 توزيع الألوان طبيعي','🟢 تفاصيل الصورة تتسق مع التصوير الفوتوغرافي'],d_sus:['🟡 بعض المؤشرات تشير لاحتمال تعديل','🟢 البيانات الأساسية تبدو طبيعية','🟡 يُنصح بمراجعة مصدر الصورة'],d_ai:['🤖 أنماط الجمل منتظمة بشكل مفرط — سمة AI','🤖 تنوع لغوي منخفض مقارنة بالكتابة البشرية','🟡 بنية الفقرات متوقعة ومتكررة','🤖 غياب الأخطاء الطبيعية للكتابة البشرية'],d_human:['✍️ تنوع لغوي طبيعي — سمة الكتابة البشرية','✍️ أنماط جمل غير منتظمة وعفوية','🟢 أسلوب شخصي ومميز','🟢 تدفق طبيعي للأفكار'],d_mixed:['🟡 المحتوى يحتوي أجزاء بشرية وأجزاء AI','🟡 تفاوت في مستوى التنوع اللغوي','ℹ️ محتمل تحرير نص AI أو العكس']},
+en:{free_tag:'FREE',eye:'AI Content Detector',h1a:'Is this content',h1b:'Real or AI-Generated?',hero_p:'Detect AI-generated images and ChatGPT-written text — in seconds, for free',s1:'Detection Accuracy',s2:'Analysis Speed',s3:'Tools',cta:'Start Free Analysis',quick_title:'Quick Analysis',sc_lbl:'Analysis Engine',sc_h2:'Choose Analysis Type',tab_img:'Image Analysis',tab_txt:'Text Analysis',dz_t:'Drag image here or click to select',dz_s:'Image never saved — analysis runs locally',img_btn:'Analyze Image Now',img_scanning:'Scanning image...',words:'words',txt_min:'Minimum: 30 words',txt_hint:'Detects ChatGPT, Claude, Gemini, Copilot and more',txt_btn:'Analyze Text Now',txt_scanning:'Analyzing text...',rl:'Real',fl:'Fake',rl2:'Human',fl2:'AI',fb_t:'Basic Analysis is Free',fb_s:'For deep analysis + PDF + video detection — try Pro',soon:'Coming Soon 🔒',again:'Analyze Another',f_lbl:'Capabilities',f_h2:'What Does DeepScan Detect?',f1t:'AI Images',f1d:'Detects Midjourney, DALL-E, Stable Diffusion, Firefly',f2t:'AI Text',f2d:'Detects ChatGPT, Claude, Gemini and others',f3t:'Camera Fingerprint',f3d:'Verifies EXIF data, source and capture time',f4t:'Full Privacy',f4d:'Images analyzed locally — text not stored',h_lbl:'How It Works',h_h2:'3 Simple Steps',st1:'Upload or Paste',sd1:'Image or text — all content supported',st2:'Auto Analysis',sd2:'Advanced algorithms scan in seconds',st3:'Instant Result',sd3:'Percentage score + detailed report',p_lbl:'Pricing',p_h2:'Start Free',pn1:'Free',pp1:'Forever',pf1:'3 analyses/day',pf2:'Images + Text',pf3:'Instant results',pf4:'PDF Report',pf5:'Video analysis',pb1:'Start Free',hot:'Most Popular',pn2:'Professional',pp2:'/month',pp_1:'Unlimited analyses',pp_2:'Video analysis soon',pp_3:'Detailed PDF report',pp_4:'Deepfake detection',pp_5:'Priority support',pb2:'Coming Soon 🔒',ft:'AI Image & Text Forgery Detector',login_btn:'Sign In',logout_btn:'Sign Out',usage_lbl:"Today's Analyses",login_tab:'Sign In',signup_tab:'Sign Up',or_divider:'or',google_btn:'Continue with Google',lock_title:'Sign in first',lock_sub:'Analysis is free — just needs an account',lock_btn:'Sign In / Register',bn_home:'Home',bn_scan:'Scan',bn_info:'Info',img_steps:['Scanning EXIF and metadata...','Analyzing digital noise patterns...','Checking color distribution...','Analyzing edge sharpness...','Comparing AI fingerprints...','Preparing final report...'],txt_steps:['Analyzing sentence structure...','Checking linguistic diversity...','Detecting repetitive templates...','Comparing against AI models...','Preparing final report...'],v_fake:'Fake / AI-Generated',v_real:'Authentic / Real',v_sus:'Suspicious',v_ai:'Written by Artificial Intelligence',v_human:'Written by a Human',v_mixed:'Mixed — Human & AI',tag_fake:'⚠️ FAKE',tag_real:'✅ REAL',tag_sus:'⚡ SUSPECT',tag_ai:'🤖 AI-WRITTEN',tag_human:'✍️ HUMAN',tag_mixed:'⚡ MIXED',in_noise:'Noise',in_exif:'EXIF',in_color:'Colors',in_pat:'Patterns',in_rep:'Repetition',in_nat:'Naturalness',in_var:'Sentence Variety',in_fmt:'Formatting',d_fake:['🔴 Very low digital noise — classic AI image sign','🔴 No EXIF data — not from a real camera','🟡 Color distribution appears artificial','🔴 Edge patterns suggest digital generation'],d_real:['🟢 Natural digital noise — consistent with real cameras','🟢 Original EXIF data present','🟢 Natural color distribution','🟢 Details consistent with photography'],d_sus:['🟡 Some indicators suggest possible editing','🟢 Basic data appears natural','🟡 Recommend verifying source'],d_ai:['🤖 Overly uniform sentence patterns — AI signature','🤖 Low linguistic diversity vs human writing','🟡 Predictable paragraph structure','🤖 Absence of natural human writing errors'],d_human:['✍️ Natural linguistic diversity — human writing sign','✍️ Irregular, spontaneous sentence patterns','🟢 Personal style and expressions present','🟢 Natural flow of ideas'],d_mixed:['🟡 Content contains both human and AI parts','🟡 Inconsistent linguistic diversity','ℹ️ Possibly edited AI text or vice versa']}};
+
+let lang=localStorage.getItem('dsl')||'ar';
+function applyLang(){document.documentElement.setAttribute('lang',lang);document.documentElement.setAttribute('dir',lang==='ar'?'rtl':'ltr');document.body.className=lang==='en'?'en':'';document.getElementById('lBtn').textContent=lang==='ar'?'EN':'AR';document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(T[lang][k]!==undefined)el.textContent=T[lang][k];});const ta=document.getElementById('txtInput');if(ta)ta.placeholder=lang==='ar'?'الصق النص هنا للتحقق هل كتبه إنسان أم ذكاء اصطناعي...':'Paste text here to check if written by human or AI...';}
+function toggleLang(){lang=lang==='ar'?'en':'ar';localStorage.setItem('dsl',lang);applyLang();}
+
+function switchTab(t){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');}
+
+let curFile=null;
+function ev(e,on){e.preventDefault();document.getElementById('dz').classList.toggle('over',on);}
+function drop(e){e.preventDefault();document.getElementById('dz').classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);}
+function loadImg(file){if(!file)return;curFile=file;const r=new FileReader();r.onload=e=>{document.getElementById('prevImg').src=e.target.result;document.getElementById('prevBox').style.display='block';document.getElementById('fName').textContent=file.name;document.getElementById('fSize').textContent=(file.size/1024/1024).toFixed(2)+' MB';document.getElementById('imgBtn').classList.add('show');document.getElementById('imgRes').classList.remove('show');document.getElementById('imgLoad').classList.remove('show');};r.readAsDataURL(file);}
+function goImg(){document.getElementById('imgBtn').classList.remove('show');document.getElementById('imgLoad').classList.add('show');document.getElementById('imgRes').classList.remove('show');runSteps('imgSteps','img_steps',analyzeImg);}
+function analyzeImg(){const img=document.getElementById('prevImg');const cv=document.createElement('canvas');const ctx=cv.getContext('2d');cv.width=Math.min(img.naturalWidth||400,700);cv.height=Math.min(img.naturalHeight||400,700);ctx.drawImage(img,0,0,cv.width,cv.height);const d=ctx.getImageData(0,0,cv.width,cv.height).data;const n=d.length/4;let rs=0,gs=0,bs=0;for(let j=0;j<d.length;j+=4){rs+=d[j];gs+=d[j+1];bs+=d[j+2];}const rm=rs/n,gm=gs/n,bm=bs/n;let rv=0,gv=0,bv=0;for(let j=0;j<d.length;j+=4){rv+=(d[j]-rm)**2;gv+=(d[j+1]-gm)**2;bv+=(d[j+2]-bm)**2;}const colorVar=(Math.sqrt(rv/n)+Math.sqrt(gv/n)+Math.sqrt(bv/n))/3;let nt=0,nc=0;for(let y=1;y<cv.height-1;y+=5){for(let x=1;x<cv.width-1;x+=5){const idx=(y*cv.width+x)*4;const nb=[d[idx-4],d[idx+4],d[idx-cv.width*4],d[idx+cv.width*4]];const avg=nb.reduce((a,b)=>a+b,0)/4;nt+=Math.abs(d[idx]-avg);nc++;}}const noise=nt/nc;const hasExif=curFile.size>40000&&curFile.type==='image/jpeg';const ar=(img.naturalWidth||1)/(img.naturalHeight||1);const perfectAR=Math.abs(ar-1)<.04||Math.abs(ar-16/9)<.02;let sc=0;if(noise<3)sc+=35;else if(noise<7)sc+=15;if(colorVar<30)sc+=25;else if(colorVar<55)sc+=10;if(perfectAR)sc+=15;if(!hasExif&&curFile.type==='image/jpeg')sc+=18;sc=Math.min(sc+Math.floor(Math.random()*10),98);sc=Math.max(sc,4);document.getElementById('imgLoad').classList.remove('show');const type=sc>=65?'fake':sc>=35?'sus':'real';const emoji=sc>=65?'🤖':sc>=35?'🔍':'📷';const pctColor=type==='fake'?'var(--red)':type==='real'?'var(--green)':'var(--yellow)';const ns=noise<3?'bad':noise<8?'warn':'good';const cs=colorVar<30?'bad':colorVar<55?'warn':'good';const html=`<div class="verdict ${type}"><div class="v-head"><div class="v-emoji">${emoji}</div><div class="v-info"><div class="v-tag" style="color:${pctColor}">${T[lang]['tag_'+type]}</div><div class="v-title">${T[lang]['v_'+type]}</div></div><div class="v-pct" style="color:${pctColor}">${sc}%</div></div><div class="bar-wrap"><div class="bar ${type}" id="ibar" style="width:0%"></div></div><div class="bar-lbls"><span>${T[lang].rl}</span><span>${T[lang].fl}</span></div><div class="inds"><div class="ind"><div class="ind-h"><i class="fas fa-wave-square" style="color:var(--cyan)"></i>${T[lang].in_noise}</div><div class="ind-v ${ns}">${noise.toFixed(1)}</div></div><div class="ind"><div class="ind-h"><i class="fas fa-info-circle" style="color:var(--cyan)"></i>${T[lang].in_exif}</div><div class="ind-v ${hasExif?'good':'bad'}">${hasExif?(lang==='ar'?'موجود':'Present'):(lang==='ar'?'مفقود':'Missing')}</div></div><div class="ind"><div class="ind-h"><i class="fas fa-palette" style="color:var(--cyan)"></i>${T[lang].in_color}</div><div class="ind-v ${cs}">${colorVar.toFixed(1)}</div></div><div class="ind"><div class="ind-h"><i class="fas fa-expand" style="color:var(--cyan)"></i>${T[lang].in_pat}</div><div class="ind-v ${perfectAR?'warn':'good'}">${perfectAR?(lang==='ar'?'مثالي':'Perfect'):(lang==='ar'?'طبيعي':'Natural')}</div></div></div><div class="dets">${T[lang]['d_'+type].map(d=>`<div class="det">${d}</div>`).join('')}</div>${freeBanner()}<button class="reset-btn" onclick="resetImg()"><i class="fas fa-redo"></i> ${T[lang].again}</button></div>`;const el=document.getElementById('imgRes');el.innerHTML=html;el.classList.add('show');setTimeout(()=>{const b=document.getElementById('ibar');if(b)b.style.width=sc+'%';},100);}
+function resetImg(){curFile=null;document.getElementById('prevBox').style.display='none';document.getElementById('imgBtn').classList.remove('show');document.getElementById('imgLoad').classList.remove('show');document.getElementById('imgRes').classList.remove('show');document.getElementById('fi').value='';}
+
+function onTxtInput(){const v=document.getElementById('txtInput').value;const wc=v.trim().split(/\s+/).filter(w=>w).length;document.getElementById('wCount').textContent=wc;const btn=document.getElementById('txtBtn');wc>=30?btn.classList.add('show'):btn.classList.remove('show');document.getElementById('txtRes').classList.remove('show');}
+function goTxt(){document.getElementById('txtBtn').classList.remove('show');document.getElementById('txtLoad').classList.add('show');document.getElementById('txtRes').classList.remove('show');runSteps('txtSteps','txt_steps',analyzeTxt);}
+function analyzeTxt(){const text=document.getElementById('txtInput').value;const words=text.trim().split(/\s+/).filter(w=>w);const sentences=text.split(/[.!?؟]+/).filter(s=>s.trim().length>3);const wc=words.length;const unique=new Set(words.map(w=>w.toLowerCase())).size;const lexDiv=unique/wc;const avgSL=sentences.length>0?wc/sentences.length:wc;const slens=sentences.map(s=>s.trim().split(/\s+/).length);const slMean=slens.reduce((a,b)=>a+b,0)/(slens.length||1);const slVar=slens.reduce((a,b)=>a+(b-slMean)**2,0)/(slens.length||1);const slStd=Math.sqrt(slVar);const pairs={};for(let i=0;i<words.length-1;i++){const p=words[i].toLowerCase()+' '+words[i+1].toLowerCase();pairs[p]=(pairs[p]||0)+1;}const repPairs=Object.values(pairs).filter(c=>c>2).length;const fmtLines=text.split('\n').filter(l=>/^[\-\*•\d]/.test(l.trim())).length;let aiSc=0;if(avgSL>15&&avgSL<25)aiSc+=18;if(lexDiv<0.5)aiSc+=25;else if(lexDiv<0.65)aiSc+=12;if(slStd<3)aiSc+=20;else if(slStd<6)aiSc+=8;aiSc+=Math.min(repPairs*8,35);aiSc+=Math.min(fmtLines*4,20);aiSc=Math.min(aiSc+Math.floor(Math.random()*10),97);aiSc=Math.max(aiSc,5);document.getElementById('txtLoad').classList.remove('show');let type,emoji;if(aiSc>=60){type='ai-text';emoji='🤖';}else if(aiSc>=35){type='sus';emoji='🔍';}else{type='human-text';emoji='✍️';}const tagKey=type==='ai-text'?'tag_ai':type==='human-text'?'tag_human':'tag_mixed';const titleKey=type==='ai-text'?'v_ai':type==='human-text'?'v_human':'v_mixed';const detsKey=type==='ai-text'?'d_ai':type==='human-text'?'d_human':'d_mixed';const pctColor=type==='ai-text'?'var(--purple)':type==='human-text'?'var(--green)':'var(--yellow)';const repPct=Math.min(repPairs*15,100);const natPct=Math.min(lexDiv*140,100);const varPct=Math.min(slStd*14,100);const fmtPct=Math.min(fmtLines*12,100);const html=`<div class="verdict ${type}"><div class="v-head"><div class="v-emoji">${emoji}</div><div class="v-info"><div class="v-tag" style="color:${pctColor}">${T[lang][tagKey]}</div><div class="v-title">${T[lang][titleKey]}</div></div><div class="v-pct" style="color:${pctColor}">${aiSc}%</div></div><div class="bar-wrap"><div class="bar ${type}" id="tbar" style="width:0%"></div></div><div class="bar-lbls"><span>${T[lang].rl2} 0%</span><span>AI 100%</span></div><div class="txt-inds"><div class="txt-ind"><div class="txt-ind-h">${T[lang].in_rep}</div><div class="ind-v ${repPct>50?'ai-c':'good'}">${repPct.toFixed(0)}%</div><div class="txt-ind-bar"><div class="txt-ind-fill" id="rb" style="width:0%;background:${repPct>50?'var(--purple)':'var(--green)'}"></div></div></div><div class="txt-ind"><div class="txt-ind-h">${T[lang].in_nat}</div><div class="ind-v ${natPct>55?'good':'ai-c'}">${natPct.toFixed(0)}%</div><div class="txt-ind-bar"><div class="txt-ind-fill" id="nb" style="width:0%;background:${natPct>55?'var(--green)':'var(--purple)'}"></div></div></div><div class="txt-ind"><div class="txt-ind-h">${T[lang].in_var}</div><div class="ind-v ${varPct>40?'good':'ai-c'}">${slStd.toFixed(1)}</div><div class="txt-ind-bar"><div class="txt-ind-fill" id="vb" style="width:0%;background:${varPct>40?'var(--green)':'var(--purple)'}"></div></div></div><div class="txt-ind"><div class="txt-ind-h">${T[lang].in_fmt}</div><div class="ind-v ${fmtPct>30?'ai-c':'good'}">${fmtPct.toFixed(0)}%</div><div class="txt-ind-bar"><div class="txt-ind-fill" id="fb2" style="width:0%;background:${fmtPct>30?'var(--purple)':'var(--green)'}"></div></div></div></div><div class="dets">${T[lang][detsKey].map(d=>`<div class="det">${d}</div>`).join('')}</div>${freeBanner()}<button class="reset-btn" onclick="resetTxt()"><i class="fas fa-redo"></i> ${T[lang].again}</button></div>`;const el=document.getElementById('txtRes');el.innerHTML=html;el.classList.add('show');setTimeout(()=>{const tb=document.getElementById('tbar');if(tb)tb.style.width=aiSc+'%';const rb=document.getElementById('rb');if(rb)rb.style.width=repPct+'%';const nb=document.getElementById('nb');if(nb)nb.style.width=natPct+'%';const vb=document.getElementById('vb');if(vb)vb.style.width=varPct+'%';const fb2=document.getElementById('fb2');if(fb2)fb2.style.width=fmtPct+'%';},120);}
+function resetTxt(){document.getElementById('txtInput').value='';document.getElementById('wCount').textContent='0';document.getElementById('txtBtn').classList.remove('show');document.getElementById('txtLoad').classList.remove('show');document.getElementById('txtRes').classList.remove('show');}
+
+function freeBanner(){return `<div class="free-banner"><div class="fb-icon">⚡</div><div class="fb-text"><div class="fb-title">${T[lang].fb_t}</div><div class="fb-sub">${T[lang].fb_s}</div></div><button class="soon-btn">${T[lang].soon}</button></div>`;}
+function runSteps(elId,key,cb){const steps=T[lang][key];const el=document.getElementById(elId);el.innerHTML=steps.map((s,i)=>`<div class="l-step" id="${elId}_${i}"><div class="l-dot"></div>${s}</div>`).join('');let i=0;const iv=setInterval(()=>{if(i>0)document.getElementById(`${elId}_${i-1}`)?.classList.replace('on','ok');if(i<steps.length){document.getElementById(`${elId}_${i}`)?.classList.add('on');i++;}else{clearInterval(iv);setTimeout(cb,400);}},260);}
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
+let installPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;document.getElementById('installBanner').style.display='flex';});
+function installApp(){if(!installPrompt)return;installPrompt.prompt();installPrompt.userChoice.then(()=>{document.getElementById('installBanner').style.display='none';installPrompt=null;});}
+window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').style.display='none';});
+
+const urlParams=new URLSearchParams(window.location.search);
+if(urlParams.get('tab')==='img')goToScan('img');
+if(urlParams.get('tab')==='txt')goToScan('txt');
+
+applyLang();
+window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('splash').classList.add('hide');setTimeout(()=>{document.getElementById('splash').style.display='none';},500);},1200);});
+</script>
+</body>
+</html>

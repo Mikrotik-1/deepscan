@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepScan — دليل الرفع</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--bg:#04060f;--bg2:#080d1c;--cyan:#00e5ff;--purple:#a855f7;--green:#00ff88;--red:#ff2d55;--text:#dceeff;--muted:#3d5a7a;--border:rgba(255,255,255,.07);--grad:linear-gradient(135deg,#00e5ff,#a855f7);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;line-height:1.8;padding:2rem 1rem;}
+.wrap{max-width:800px;margin:0 auto;}
+.logo{font-family:'Space Mono',monospace;font-size:1.5rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem;}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:3rem;}
+.step{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:1.5rem;position:relative;}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--grad);color:#04060f;font-weight:800;font-size:.95rem;font-family:'Space Mono',monospace;margin-bottom:1rem;}
+.step h3{font-size:1.1rem;font-weight:800;margin-bottom:.8rem;color:white;}
+.step p,.step li{color:var(--muted);font-size:.9rem;margin-bottom:.4rem;}
+.step ul{padding-right:1.2rem;}
+.code{background:#080d1c;border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:'Space Mono',monospace;font-size:.8rem;color:var(--cyan);margin:.8rem 0;overflow-x:auto;white-space:pre;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;font-family:'Space Mono',monospace;}
+.b-free{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2);}
+.b-paid{background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.2);}
+.b-once{background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.2);}
+.highlight{background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(168,85,247,.04));border:1px solid rgba(0,229,255,.2);border-radius:12px;padding:16px;margin:.8rem 0;}
+.highlight-title{font-weight:800;color:var(--cyan);margin-bottom:.4rem;font-size:.95rem;}
+.files-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:.8rem 0;}
+.file-card{background:#080d1c;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.file-icon{font-size:1.5rem;margin-bottom:.4rem;}
+.file-name{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--cyan);}
+.file-desc{font-size:.75rem;color:var(--muted);margin-top:.2rem;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:2rem 0;}
+.warning{background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.2);border-radius:10px;padding:12px 16px;font-size:.85rem;color:#ffd60a;margin:.8rem 0;}
+.success{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:10px;padding:12px 16px;font-size:.85rem;color:var(--green);margin:.8rem 0;}
+a{color:var(--cyan);text-decoration:none;}
+a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="logo">[ DEEPSCAN ] — دليل الرفع</div>
+    <div class="sub">خطوات تحويل الموقع لتطبيق PWA ورفعه على النت مجاناً</div>
+
+    <!-- ملفات المشروع -->
+    <div class="step">
+        <div class="step-num">📁</div>
+        <h3>ملفات المشروع الكاملة</h3>
+        <p>المشروع يتكون من الملفات دي — تأكد إنك عندك كلهم:</p>
+        <div class="files-grid">
+            <div class="file-card"><div class="file-icon">🌐</div><div class="file-name">deepscan.html</div><div class="file-desc">الموقع الرئيسي</div></div>
+            <div class="file-card"><div class="file-icon">📋</div><div class="file-name">manifest.json</div><div class="file-desc">معلومات التطبيق</div></div>
+            <div class="file-card"><div class="file-icon">⚙️</div><div class="file-name">sw.js</div><div class="file-desc">الكاش والأوف لاين</div></div>
+            <div class="file-card"><div class="file-icon">🖼️</div><div class="file-name">icon-192.png</div><div class="file-desc">أيقونة صغيرة</div></div>
+            <div class="file-card"><div class="file-icon">🖼️</div><div class="file-name">icon-512.png</div><div class="file-desc">أيقونة كبيرة</div></div>
+            <div class="file-card"><div class="file-icon">🔖</div><div class="file-name">favicon.ico</div><div class="file-desc">أيقونة المتصفح</div></div>
+        </div>
+        <div class="warning">⚠️ مهم: اسم الملف الرئيسي لازم يبقى <strong>index.html</strong> — غيّر اسم deepscan.html لـ index.html قبل الرفع</div>
+    </div>
+
+    <!-- الخطوة 1 -->
+    <div class="step">
+        <div class="step-num">1</div>
+        <h3>إنشاء حساب Netlify <span class="badge b-free">مجاني</span></h3>
+        <ul>
+            <li>روح على <a href="https://netlify.com" target="_blank">netlify.com</a></li>
+            <li>اضغط <strong>Sign Up</strong> — سجل بـ GitHub أو Gmail</li>
+            <li>مش محتاج بطاقة بنكية</li>
+        </ul>
+        <div class="success">✅ Netlify بيديك HTTPS تلقائي — ضروري للـ PWA تشتغل</div>
+    </div>
+
+    <!-- الخطوة 2 -->
+    <div class="step">
+        <div class="step-num">2</div>
+        <h3>رفع الملفات</h3>
+        <ul>
+            <li>بعد التسجيل هتشوف صفحة فيها مكتوب <strong>"Deploy manually"</strong></li>
+            <li>اسحب فولدر فيه كل الملفات الـ 6 وحطه في المكان المخصص</li>
+            <li>أو اضغط <strong>Browse to upload</strong> واختار الملفات كلها</li>
+        </ul>
+        <div class="highlight">
+            <div class="highlight-title">📂 ترتيب الفولدر:</div>
+            <div class="code">deepscan-app/
+├── index.html        ← (اسمه كان deepscan.html)
+├── manifest.json
+├── sw.js
+├── icon-192.png
+├── icon-512.png
+└── favicon.ico</div>
+        </div>
+    </div>
+
+    <!-- الخطوة 3 -->
+    <div class="step">
+        <div class="step-num">3</div>
+        <h3>الدومين الخاص <span class="badge b-paid">اختياري — ~$10/سنة</span></h3>
+        <p>بعد الرفع هتاخد رابط عشوائي زي:</p>
+        <div class="code">https://amazing-fox-123456.netlify.app</div>
+        <p>لو عايز دومين احترافي زي <strong>deepscan.app</strong> أو <strong>deepscan.io</strong>:</p>
+        <ul>
+            <li>اشتري الدومين من <a href="https://namecheap.com" target="_blank">Namecheap</a> أو <a href="https://godaddy.com" target="_blank">GoDaddy</a></li>
+            <li>في Netlify روح <strong>Domain Settings</strong> واربطه</li>
+        </ul>
+        <div class="highlight">
+            <div class="highlight-title">💡 أسماء دومين متاحة للمشروع:</div>
+            <ul>
+                <li>deepscan.app</li>
+                <li>fakescan.io</li>
+                <li>truthscan.net</li>
+                <li>aiscan.app</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- الخطوة 4 -->
+    <div class="step">
+        <div class="step-num">4</div>
+        <h3>إضافة favicon في HTML</h3>
+        <p>في ملف <strong>index.html</strong> في الـ &lt;head&gt; أضف السطر ده:</p>
+        <div class="code">&lt;link rel="icon" href="favicon.ico" type="image/x-icon"&gt;</div>
+    </div>
+
+    <!-- الخطوة 5 -->
+    <div class="step">
+        <div class="step-num">5</div>
+        <h3>اختبار التطبيق على الموبايل</h3>
+        <ul>
+            <li>افتح رابط الموقع على موبايلك بـ Chrome أو Safari</li>
+            <li>هيظهر بانر تلقائي <strong>"إضافة للشاشة الرئيسية"</strong></li>
+            <li>اضغط عليه — التطبيق هيتنزل زي أي تطبيق عادي!</li>
+        </ul>
+        <div class="success">✅ على Android Chrome البانر بيظهر تلقائي<br>✅ على iPhone: Share → Add to Home Screen</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- المرحلة القادمة -->
+    <div class="step">
+        <div class="step-num">🚀</div>
+        <h3>لو الفكرة نجحت — المرحلة الجاية</h3>
+        <div class="highlight">
+            <div class="highlight-title">تحويل لتطبيق Android حقيقي في Google Play:</div>
+            <ul style="margin-top:.5rem;">
+                <li>حساب Google Play مرة واحدة: <strong style="color:#ff2d55;">$25</strong></li>
+                <li>استخدام <strong>TWA (Trusted Web Activity)</strong> — بيحول الـ PWA لـ APK</li>
+                <li>أداة مجانية: <a href="https://www.pwabuilder.com" target="_blank">pwabuilder.com</a> — بتولد APK في 5 دقائق</li>
+            </ul>
+        </div>
+        <div class="highlight">
+            <div class="highlight-title">تطبيق iOS في App Store:</div>
+            <ul style="margin-top:.5rem;">
+                <li>حساب Apple Developer: <strong style="color:#ff2d55;">$99/سنة</strong></li>
+                <li>محتاج Mac أو إيجار Mac Cloud</li>
+                <li>الأسهل: ابدأ بـ Android الأول</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ملخص التكاليف -->
+    <div class="step">
+        <div class="step-num">💰</div>
+        <h3>ملخص التكاليف</h3>
+        <ul>
+            <li>Netlify هوستينج: <strong style="color:var(--green);">مجاني</strong></li>
+            <li>PWA على الموبايل: <strong style="color:var(--green);">مجاني</strong></li>
+            <li>دومين احترافي: <strong style="color:var(--cyan);">~$10/سنة</strong></li>
+            <li>Google Play: <strong style="color:var(--purple);">$25 مرة واحدة</strong></li>
+            <li>App Store: <strong style="color:#ff2d55;">$99/سنة</strong></li>
+        </ul>
+        <div class="success" style="margin-top:1rem;">
+            🎯 للبداية: 0 جنيه — ارفع على Netlify وجرب الفكرة<br>
+            لو نجحت: $25 بس تدخل Google Play
+        </div>
+    </div>
+
+    <div style="text-align:center;color:var(--muted);font-size:.8rem;margin-top:2rem;font-family:'Space Mono',monospace;">
+        © 2026 DeepScan — بالتوفيق! 🚀
+    </div>
+</div>
+</body>
+</html>
