@@ -608,32 +608,6 @@ window._dsAuth={signUp:(e,p)=>createUserWithEmailAndPassword(auth,e,p),signIn:(e
     <div class="screen-sub" data-i18n="sc_lbl">محرك التحليل</div>
   </div>
 
-  <div class="auth-overlay" id="authOverlay" style="display:none;" onclick="if(event.target===this)closeAuth()">
-    <div class="auth-box">
-      <div class="auth-handle"></div>
-      <button class="auth-close" onclick="closeAuth()"><i class="fas fa-times"></i></button>
-      <div class="auth-logo">DeepScan</div>
-      <div class="auth-sub">سجل الدخول للبدء في التحليل</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login')" id="authTabLogin" data-i18n="login_tab">دخول</button>
-        <button class="auth-tab" onclick="switchAuthTab('signup')" id="authTabSignup" data-i18n="signup_tab">حساب جديد</button>
-      </div>
-      <div class="auth-msg" id="authMsg"></div>
-      <input type="email" class="auth-input" id="authEmail" placeholder="البريد الإلكتروني" autocomplete="email">
-      <input type="password" class="auth-input" id="authPass" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
-      <input type="password" class="auth-input" id="authPass2" placeholder="تأكيد كلمة المرور" style="display:none" autocomplete="new-password">
-      <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()"><i class="fas fa-sign-in-alt"></i><span id="authBtnText">دخول</span></button>
-      <div style="text-align:center;margin-top:.5rem;">
-        <button onclick="showReset()" style="background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;font-family:var(--ar);" id="forgotBtn">نسيت كلمة المرور؟</button>
-      </div>
-      <div class="auth-divider" data-i18n="or_divider">أو</div>
-      <button class="auth-google" onclick="googleAuth()">
-        <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706s.102-1.166.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/></svg>
-        <span data-i18n="google_btn">متابعة بـ Google</span>
-      </button>
-    </div>
-  </div>
-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('img')" id="tabImg"><i class="fas fa-image"></i><span data-i18n="tab_img">تحليل صورة</span></button>
     <button class="tab" onclick="switchTab('txt')" id="tabTxt"><i class="fas fa-font"></i><span data-i18n="tab_txt">تحليل نص</span></button>
@@ -767,8 +741,34 @@ window._dsAuth={signUp:(e,p)=>createUserWithEmailAndPassword(auth,e,p),signIn:(e
   <button class="ib-close" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
 </div>
 
-<script>
-const T={
+<!-- AUTH MODAL - global, outside screens -->
+<div class="auth-overlay" id="authOverlay" style="display:none;" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-box">
+    <div class="auth-handle"></div>
+    <button class="auth-close" onclick="closeAuth()"><i class="fas fa-times"></i></button>
+    <div class="auth-logo">DeepScan</div>
+    <div class="auth-sub">سجل الدخول للبدء في التحليل</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')" id="authTabLogin" data-i18n="login_tab">دخول</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')" id="authTabSignup" data-i18n="signup_tab">حساب جديد</button>
+    </div>
+    <div class="auth-msg" id="authMsg"></div>
+    <input type="email" class="auth-input" id="authEmail" placeholder="البريد الإلكتروني" autocomplete="email">
+    <input type="password" class="auth-input" id="authPass" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
+    <input type="password" class="auth-input" id="authPass2" placeholder="تأكيد كلمة المرور" style="display:none" autocomplete="new-password">
+    <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()"><i class="fas fa-sign-in-alt"></i><span id="authBtnText">دخول</span></button>
+    <div style="text-align:center;margin-top:.5rem;">
+      <button onclick="showReset()" style="background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;font-family:var(--ar);" id="forgotBtn">نسيت كلمة المرور؟</button>
+    </div>
+    <div class="auth-divider" data-i18n="or_divider">أو</div>
+    <button class="auth-google" onclick="googleAuth()">
+      <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706s.102-1.166.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/></svg>
+      <span data-i18n="google_btn">متابعة بـ Google</span>
+    </button>
+  </div>
+</div>
+
+<script>const T={
   ar:{eye:'كاشف الذكاء الاصطناعي',h1b:'حقيقي أم مزوّر؟',hero_p:'اكشف الصور المصنوعة بالذكاء الاصطناعي والنصوص المكتوبة بـ ChatGPT — في ثوانٍ ومجاناً',cta:'ابدأ التحليل مجاناً',s1:'دقة التحليل',s2:'سرعة الكشف',s3:'مؤشر',quick_title:'تحليل سريع',tab_img:'تحليل صورة',tab_txt:'تحليل نص',f1d_s:'Midjourney، DALL-E، SD',f2d_s:'ChatGPT، Claude، Gemini',f_lbl:'القدرات',f1t:'صور AI',f2t:'نصوص AI',f3t:'بصمة الكاميرا',f4t:'خصوصية تامة',sc_h2:'اختر نوع التحليل',sc_lbl:'محرك التحليل',login_btn:'دخول',free_tag:'مجاني',login_tab:'دخول',signup_tab:'حساب جديد',or_divider:'أو',google_btn:'متابعة بـ Google',lock_title:'سجل الدخول أولاً',lock_sub:'التحليل مجاني — فقط محتاج حساب',lock_btn:'دخول / تسجيل',dz_t:'اسحب الصورة أو اضغط للاختيار',dz_s:'صورتك لن تُحفظ — التحليل يتم على جهازك',img_btn:'تحليل الصورة الآن',img_scanning:'جاري فحص الصورة...',txt_btn:'تحليل النص الآن',txt_scanning:'جاري تحليل النص...',txt_hint:'يكتشف نصوص ChatGPT وClaude وGemini وCopilot',words:'كلمة',txt_min:'الحد الأدنى: 30 كلمة',f_h2:'ماذا يكشف DeepScan؟',h_lbl:'كيف يعمل',st1:'ارفع أو الصق',sd1:'صورة أو نص',st2:'التحليل التلقائي',sd2:'12+ مؤشر متقدم في ثوانٍ',st3:'النتيجة الفورية',sd3:'تقرير مفصل بنسبة مئوية دقيقة',f1d:'يكشف Midjourney وDALL-E وStable Diffusion',f2d:'يكتشف ChatGPT وClaude وGemini وغيرهم',f3d:'يتحقق من EXIF ومصدر الصورة',f4d:'الصور تُحلَّل محلياً — بدون حفظ بياناتك',p_lbl:'الأسعار',pn1:'مجاني',pp1:'للأبد',pf1:'3 تحليلات يومياً',pf2:'صور + نصوص',pf3:'نتيجة فورية',pf4:'تقرير PDF',pb1:'ابدأ مجاناً',hot:'الأكثر طلباً',pn2:'احترافي',pp2:'شهرياً',pp_1:'تحليلات غير محدودة',pp_3:'تقرير PDF مفصل',pp_4:'كشف Deepfake',pb2:'قريباً 🔒',usage_lbl:'التحليلات اليوم',logout_btn:'تسجيل الخروج',bn_home:'الرئيسية',bn_scan:'تحليل',bn_info:'معلومات'},
   en:{eye:'AI Detector',h1b:'Real or Fake?',hero_p:'Detect AI-generated images and ChatGPT-written text — in seconds, for free',cta:'Start Free Analysis',s1:'Accuracy',s2:'Speed',s3:'Indicators',quick_title:'Quick Analysis',tab_img:'Image Analysis',tab_txt:'Text Analysis',f1d_s:'Midjourney, DALL-E, SD',f2d_s:'ChatGPT, Claude, Gemini',f_lbl:'Capabilities',f1t:'AI Images',f2t:'AI Texts',f3t:'Camera Fingerprint',f4t:'Full Privacy',sc_h2:'Choose Analysis Type',sc_lbl:'Analysis Engine',login_btn:'Login',free_tag:'FREE',login_tab:'Login',signup_tab:'Sign Up',or_divider:'or',google_btn:'Continue with Google',lock_title:'Login First',lock_sub:'Free analysis — just need an account',lock_btn:'Login / Sign Up',dz_t:'Drag image or tap to choose',dz_s:"Won't be saved — local analysis",img_btn:'Analyze Image Now',img_scanning:'Scanning image...',txt_btn:'Analyze Text Now',txt_scanning:'Analyzing text...',txt_hint:'Detects ChatGPT, Claude, Gemini, Copilot',words:'words',txt_min:'Minimum: 30 words',f_h2:'What does DeepScan detect?',h_lbl:'How it works',st1:'Upload or Paste',sd1:'Image or text',st2:'Auto Analysis',sd2:'12+ advanced indicators',st3:'Instant Result',sd3:'Detailed report',f1d:'Detects Midjourney, DALL-E, Stable Diffusion',f2d:'Detects ChatGPT, Claude, Gemini and more',f3d:'Verifies EXIF and image source',f4d:'Images analyzed locally',p_lbl:'Pricing',pn1:'Free',pp1:'Forever',pf1:'3 analyses/day',pf2:'Images + Texts',pf3:'Instant result',pf4:'PDF Report',pb1:'Start Free',hot:'Most Popular',pn2:'Pro',pp2:'/month',pp_1:'Unlimited analyses',pp_3:'Detailed PDF report',pp_4:'Deepfake detection',pb2:'Coming Soon 🔒',usage_lbl:"Today's Analyses",logout_btn:'Sign Out',bn_home:'Home',bn_scan:'Scan',bn_info:'Info'}
 };
@@ -813,38 +813,116 @@ async function analyzeImageDeep(file){
   return new Promise(resolve=>{
     const img=new Image();const url=URL.createObjectURL(file);
     img.onload=()=>{
-      const canvas=document.createElement('canvas');const MAX=600;const ratio=Math.min(MAX/img.width,MAX/img.height,1);canvas.width=Math.round(img.width*ratio);canvas.height=Math.round(img.height*ratio);
+      const MAX=800;const ratio=Math.min(MAX/img.width,MAX/img.height,1);
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.round(img.width*ratio);canvas.height=Math.round(img.height*ratio);
       const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);
-      const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;URL.revokeObjectURL(url);
+      const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      URL.revokeObjectURL(url);
       const W=canvas.width,H=canvas.height;
-      let noiseSum=0,noiseSamples=0;
-      for(let i=0;i<data.length-16;i+=16){const diff=Math.abs(data[i]-data[i+4])+Math.abs(data[i+1]-data[i+5])+Math.abs(data[i+2]-data[i+6]);noiseSum+=diff;noiseSamples++;}
-      const avgNoise=noiseSum/noiseSamples;
-      const noiseScore=avgNoise<3?85:avgNoise<8?70:avgNoise<15?40:avgNoise<25?30:20;
-      let rSum=0,gSum=0,bSum=0;let count=0;const step=Math.floor(data.length/10000)*4||4;
-      for(let i=0;i<data.length;i+=step){rSum+=data[i];gSum+=data[i+1];bSum+=data[i+2];count++;}
-      const rMean=rSum/count,gMean=gSum/count,bMean=bSum/count;
-      let rVar=0,gVar=0,bVar=0;
-      for(let i=0;i<data.length;i+=step){rVar+=Math.pow(data[i]-rMean,2);gVar+=Math.pow(data[i+1]-gMean,2);bVar+=Math.pow(data[i+2]-bMean,2);}
-      const cVar=(Math.sqrt(rVar/count)+Math.sqrt(gVar/count)+Math.sqrt(bVar/count))/3;
-      const cBal=Math.abs(Math.sqrt(rVar/count)-Math.sqrt(gVar/count))+Math.abs(Math.sqrt(gVar/count)-Math.sqrt(bVar/count));
-      const colorScore=cBal<15&&cVar>35&&cVar<75?75:cBal<25?55:35;
-      const ar=img.width/img.height;const stdRatios=[1,4/3,16/9,9/16,3/2,2/3];
-      const ratioScore=stdRatios.some(r=>Math.abs(ar-r)<0.02)?70:20;
-      let edgeSum=0;
-      for(let y=1;y<H-1;y++){for(let x=1;x<W-1;x++){const idx=(y*W+x)*4;const gx=Math.abs(data[idx]-data[idx+4]);const gy=Math.abs(data[idx]-data[idx+W*4]);edgeSum+=Math.sqrt(gx*gx+gy*gy);}}
-      const avgEdge=edgeSum/((W-2)*(H-2));const edgeScore=avgEdge>30&&avgEdge<80?70:avgEdge<15?75:30;
-      const fname=file.name.toLowerCase();
-      const hasAIName=/midjourney|dalle|stable|diffusion|generated|ai_|_ai|flux|sd_/.test(fname);
-      const hasRealName=/img_|dsc_|_dsc|photo_|\d{8}/.test(fname);
-      const exifScore=hasAIName?85:hasRealName?15:50;
-      const isPow2=(n)=>(n&(n-1))===0;
-      const resScore=isPow2(img.width)&&isPow2(img.height)?80:isPow2(img.width)||isPow2(img.height)?60:20;
-      const raw=noiseScore*.25+colorScore*.18+edgeScore*.18+ratioScore*.12+exifScore*.15+resScore*.12;
-      const jitter=(Math.random()-.5)*14;
-      const score=Math.max(5,Math.min(97,Math.round(raw+jitter)));
-      resolve({score,width:img.width,height:img.height,fileSize:(file.size/1024/1024).toFixed(2),
-        indicators:{noise:{val:Math.round(avgNoise*10)/10,score:noiseScore,label:lang==='ar'?'الضوضاء الرقمية':'Digital Noise'},color:{val:Math.round(cVar),score:colorScore,label:lang==='ar'?'توزيع الألوان':'Color Balance'},edge:{val:Math.round(avgEdge),score:edgeScore,label:lang==='ar'?'حدة الحواف':'Edge Sharpness'},ratio:{val:`${img.width}×${img.height}`,score:ratioScore,label:lang==='ar'?'نسبة الأبعاد':'Aspect Ratio'},exif:{val:hasAIName?'AI':hasRealName?'Camera':'—',score:exifScore,label:'EXIF / Name'},res:{val:`${img.width}px`,score:resScore,label:lang==='ar'?'دقة الصورة':'Resolution'}}});
+
+      // 1. BLOCK VARIANCE ANALYSIS (DCT-like)
+      // AI images are too smooth — low high-frequency blocks
+      // Real photos have sensor noise creating varied blocks
+      let hfBlocks=0,totalBlocks=0;
+      const bs=8;
+      for(let by=0;by<H-bs;by+=bs){for(let bx=0;bx<W-bs;bx+=bs){
+        let bMean=0,n2=0;
+        for(let y=by;y<by+bs;y++){for(let x=bx;x<bx+bs;x++){
+          bMean+=(data[(y*W+x)*4]*0.299+data[(y*W+x)*4+1]*0.587+data[(y*W+x)*4+2]*0.114);n2++;
+        }}
+        bMean/=n2;let bVar=0;
+        for(let y=by;y<by+bs;y++){for(let x=bx;x<bx+bs;x++){
+          const g=data[(y*W+x)*4]*0.299+data[(y*W+x)*4+1]*0.587+data[(y*W+x)*4+2]*0.114;
+          bVar+=Math.pow(g-bMean,2);
+        }}
+        if(bVar/n2>180)hfBlocks++;totalBlocks++;
+      }}
+      const hfRatio=hfBlocks/(totalBlocks||1);
+      // Real: 0.25-0.60 | AI smooth: <0.18 | AI over-sharp: >0.65
+      let freqScore=hfRatio<0.10?85:hfRatio<0.18?70:hfRatio<0.28?48:hfRatio<0.55?15:52;
+
+      // 2. RGB CHANNEL CORRELATION
+      // AI: channels very correlated (model generates coherent colors)
+      // Real camera: slight channel independence from sensor
+      const stp=Math.max(4,Math.floor((W*H)/6000))*4;
+      let rA=[],gA=[],bA=[];
+      for(let i=0;i<data.length;i+=stp){rA.push(data[i]);gA.push(data[i+1]);bA.push(data[i+2]);}
+      const avg=a=>a.reduce((s,v)=>s+v,0)/a.length;
+      const rM=avg(rA),gM=avg(gA),bM=avg(bA);
+      let rgC=0,rV=0,gV=0,bV=0;
+      for(let i=0;i<rA.length;i++){rgC+=(rA[i]-rM)*(gA[i]-gM);rV+=Math.pow(rA[i]-rM,2);gV+=Math.pow(gA[i]-gM,2);bV+=Math.pow(bA[i]-bM,2);}
+      const nn=rA.length;
+      const corrRG=rgC/nn/Math.sqrt(rV/nn*gV/nn+0.001);
+      const corrRB=(rA.reduce((s,v,i)=>{return s+(v-rM)*(bA[i]-bM);},0)/nn)/Math.sqrt(rV/nn*bV/nn+0.001);
+      const corr=(Math.abs(corrRG)+Math.abs(corrRB))/2;
+      let corrScore=corr>0.97?75:corr>0.93?60:corr>0.86?38:corr>0.76?18:32;
+
+      // 3. TEXTURE ENTROPY UNIFORMITY
+      // AI: all regions have similar, smooth entropy (uniform texture)
+      // Real: entropy varies significantly across regions
+      const ents=[];
+      for(let ry=0;ry<3;ry++){for(let rx=0;rx<3;rx++){
+        const rw2=Math.floor(W/3),rh2=Math.floor(H/3);
+        const hist=new Array(32).fill(0);let cnt=0;
+        for(let y=ry*rh2;y<Math.min((ry+1)*rh2,H);y+=2){for(let x=rx*rw2;x<Math.min((rx+1)*rw2,W);x+=2){
+          const idx=(y*W+x)*4;
+          hist[Math.min(31,Math.floor((data[idx]*.299+data[idx+1]*.587+data[idx+2]*.114)/8))]++;cnt++;
+        }}
+        let e=0;hist.forEach(v=>{if(v>0){const p=v/cnt;e-=p*Math.log2(p);}});ents.push(e);
+      }}
+      const eM=avg(ents);
+      const eStd=Math.sqrt(ents.reduce((s,v)=>s+Math.pow(v-eM,2),0)/ents.length);
+      let entropyScore=eStd<0.12?82:eStd<0.25?65:eStd<0.50?35:15;
+
+      // 4. SOBEL EDGE COEFFICIENT OF VARIATION
+      // AI: unnaturally consistent edge magnitudes (clean, perfect edges)
+      // Real: high variation in edge strength (organic, noisy)
+      const eVals=[];
+      for(let y=2;y<H-2;y+=3){for(let x=2;x<W-2;x+=3){
+        const gx=-data[((y-1)*W+(x-1))*4]+data[((y-1)*W+(x+1))*4]-2*data[(y*W+(x-1))*4]+2*data[(y*W+(x+1))*4]-data[((y+1)*W+(x-1))*4]+data[((y+1)*W+(x+1))*4];
+        const gy=-data[((y-1)*W+(x-1))*4]-2*data[((y-1)*W+x)*4]-data[((y-1)*W+(x+1))*4]+data[((y+1)*W+(x-1))*4]+2*data[((y+1)*W+x)*4]+data[((y+1)*W+(x+1))*4];
+        eVals.push(Math.sqrt(gx*gx+gy*gy)/4);
+      }}
+      const eMn=avg(eVals);
+      const eCv=Math.sqrt(eVals.reduce((s,v)=>s+Math.pow(v-eMn,2),0)/eVals.length)/(eMn+0.01);
+      let edgeScore=eCv<0.75?80:eCv<1.1?58:eCv<1.7?28:15;
+
+      // 5. FILE SIGNATURE (dimensions + compression ratio)
+      const bytesPerPx=file.size/(img.width*img.height);
+      const aiDims=[[512,512],[768,512],[512,768],[1024,1024],[1024,768],[768,1024],[1344,768],[768,1344],[1536,1024],[1024,1536],[2048,2048],[1920,1080],[1080,1920]];
+      const isPow2=(n)=>n>0&&(n&(n-1))===0;
+      const matchAIDim=aiDims.some(([w,h])=>Math.abs(img.width-w)<3&&Math.abs(img.height-h)<3);
+      const bothPow2=isPow2(img.width)&&isPow2(img.height);
+      let dimScore=matchAIDim?78:bothPow2?62:18;
+      // JPEG compression ratio: AI images often very smooth -> compress better
+      if(file.type==='image/jpeg'&&bytesPerPx<0.20)dimScore=Math.max(dimScore,68);
+      else if(file.type==='image/jpeg'&&bytesPerPx>0.8&&bytesPerPx<2.5)dimScore=Math.min(dimScore,30);
+
+      // 6. METADATA / FILENAME
+      const fn=file.name.toLowerCase();
+      const aiSig=/midjourney|dalle|dall.e|stablediff|stable.diff|generated|comfyui|flux|firefly|imagen|ideogram|leonardo|runway|sora|ai.gen/.test(fn);
+      const realSig=/img_\d|dsc_\d|_dsc\d|photo_\d|\d{8}_\d{6}|wp_\d{5}|burst|live.photo/.test(fn);
+      let metaScore=aiSig?90:realSig?8:45;
+
+      // FINAL WEIGHTED SCORE — no random jitter, pure signal
+      let pixel=freqScore*0.28+corrScore*0.20+entropyScore*0.22+edgeScore*0.18+dimScore*0.12;
+      let final;
+      if(aiSig)final=Math.round(pixel*0.35+90*0.65);
+      else if(realSig)final=Math.round(pixel*0.55+10*0.45);
+      else final=Math.round(pixel*0.85+metaScore*0.15);
+      final=Math.max(6,Math.min(95,final));
+
+      resolve({score:final,width:img.width,height:img.height,fileSize:(file.size/1024/1024).toFixed(2),
+        indicators:{
+          freq:{val:`${Math.round(hfRatio*100)}%`,score:freqScore,label:lang==='ar'?'نمط الترددات':'Freq. Pattern'},
+          corr:{val:Math.round(corr*100)/100,score:corrScore,label:lang==='ar'?'ترابط الألوان':'Color Corr.'},
+          entropy:{val:Math.round(eStd*100)/100,score:entropyScore,label:lang==='ar'?'توحيد القوام':'Texture'},
+          edge:{val:Math.round(eCv*100)/100,score:edgeScore,label:lang==='ar'?'اتساق الحواف':'Edge Cons.'},
+          dim:{val:`${img.width}×${img.height}`,score:dimScore,label:lang==='ar'?'أبعاد الصورة':'Dimensions'},
+          meta:{val:aiSig?'AI':realSig?'📷':'—',score:metaScore,label:lang==='ar'?'البيانات الوصفية':'Metadata'},
+        }
+      });
     };img.src=URL.createObjectURL(file);
   });
 }
@@ -888,22 +966,61 @@ async function runTxt(){
 
 function analyzeTextDeep(txt,words){
   const sentences=txt.split(/[.!?؟!]+/).filter(s=>s.trim().length>3);
-  const unique=new Set(words.map(w=>w.toLowerCase().replace(/[^\w\u0600-\u06FF]/g,'')));
-  const ttr=unique.size/words.length;const ttrScore=ttr>0.3&&ttr<0.7?65:ttr<0.2?30:80;
-  const sentLens=sentences.map(s=>s.trim().split(/\s+/).length);const avgLen=sentLens.reduce((a,b)=>a+b,0)/sentLens.length;
-  const variance=sentLens.reduce((a,b)=>a+Math.pow(b-avgLen,2),0)/sentLens.length;const stdDev=Math.sqrt(variance);
-  const varScore=stdDev<2?80:stdDev<4?60:stdDev<7?35:20;
-  const arT=['علاوة على ذلك','بالإضافة إلى','من ناحية أخرى','في الختام','وبالتالي','تجدر الإشارة'];
-  const enT=['furthermore','additionally','moreover','in conclusion','therefore','it is worth noting','in summary'];
-  const transCount=[...arT,...enT].filter(t=>txt.toLowerCase().includes(t.toLowerCase())).length;
-  const transScore=transCount>=3?85:transCount>=2?70:transCount>=1?50:20;
-  const aiP=['في عالم','يُعدّ','يُعتبر','من المهم','من الضروري','it is important','in today\'s world','to summarize'];
-  const phraseScore=[...aiP].filter(p=>txt.toLowerCase().includes(p.toLowerCase())).length;
-  const pScore=phraseScore>=3?85:phraseScore>=2?65:phraseScore>=1?45:15;
-  const raw=ttrScore*.22+varScore*.25+transScore*.25+pScore*.28;
-  const score=Math.max(5,Math.min(97,Math.round(raw+(Math.random()-.5)*14)));
-  return{score,wordCount:words.length,sentCount:sentences.length,uniqueWords:unique.size,avgSentLen:Math.round(avgLen*10)/10,
-    indicators:{ttr:{val:`${Math.round(ttr*100)}%`,score:ttrScore,label:lang==='ar'?'تنوع المفردات':'Lexical Diversity'},sentVar:{val:Math.round(stdDev*10)/10,score:varScore,label:lang==='ar'?'تنوع الجمل':'Sentence Variance'},trans:{val:transCount,score:transScore,label:lang==='ar'?'أدوات الربط':'Transitions'},phrases:{val:phraseScore,score:pScore,label:lang==='ar'?'عبارات AI':'AI Phrases'}}};
+
+  // 1. LEXICAL DENSITY
+  const unique=new Set(words.map(w=>w.toLowerCase().replace(/[^\w\u0600-\u06FF]/g,'')).filter(w=>w.length>1));
+  const ttr=unique.size/words.length;
+  let ttrScore=ttr>0.70?15:ttr>0.58?35:ttr>0.44?68:ttr>0.32?45:25;
+
+  // 2. SENTENCE LENGTH STD DEV
+  const sentLens=sentences.map(s=>s.trim().split(/\s+/).filter(w=>w).length).filter(l=>l>1);
+  const sAvg=sentLens.reduce((a,b)=>a+b,0)/(sentLens.length||1);
+  const sStd=Math.sqrt(sentLens.reduce((a,b)=>a+Math.pow(b-sAvg,2),0)/(sentLens.length||1));
+  let sentScore=sStd<1.8?85:sStd<3.0?70:sStd<5.0?45:sStd<8.0?22:15;
+
+  // 3. BURSTINESS
+  let burstScore=25;
+  if(sentLens.length>=4){
+    const diffs=sentLens.slice(1).map((v,i)=>Math.abs(v-sentLens[i]));
+    const dAvg=diffs.reduce((a,b)=>a+b,0)/diffs.length;
+    const dStd=Math.sqrt(diffs.reduce((a,b)=>a+Math.pow(b-dAvg,2),0)/diffs.length);
+    burstScore=dStd<1.5?80:dStd<3?60:dStd<6?35:15;
+  }
+
+  // 4. AI TRANSITION PHRASES
+  const arTrans=['علاوة على ذلك','بالإضافة إلى ذلك','من ناحية أخرى','في الختام','وفي الختام','وبالتالي','نتيجة لذلك','تجدر الإشارة','يجدر بالذكر','من هذا المنطلق','في هذا السياق','من جهة أخرى','خلاصة القول','في المقابل','بشكل عام'];
+  const enTrans=['furthermore','additionally','moreover','in conclusion','in summary','as a result','therefore','consequently','it is worth noting','it should be noted','on the other hand','in this context','to summarize','in contrast','overall'];
+  const transHits=[...arTrans,...enTrans].filter(t=>txt.toLowerCase().includes(t.toLowerCase())).length;
+  let transScore=transHits>=4?88:transHits>=3?78:transHits>=2?62:transHits>=1?40:12;
+
+  // 5. AI OPENER/CLOSER PATTERNS
+  const aiOpeners=['في عالم','في ظل','تُعدّ','يُعدّ','يعتبر','لا شك','بلا شك','من المهم جداً','من الأهمية بمكان','it is important to note','in today\'s','in the modern','it goes without saying','there is no doubt','undoubtedly'];
+  const aiClosers=['في الختام','خلاصة القول','وفي نهاية المطاف','ختاماً','in conclusion','to conclude','in summary','all in all','to summarize'];
+  const txtLow=txt.toLowerCase();
+  const opHits=aiOpeners.filter(p=>txtLow.includes(p.toLowerCase())).length;
+  const clHits=aiClosers.filter(p=>txtLow.includes(p.toLowerCase())).length;
+  let patternScore=(opHits+clHits*1.5)>=4?85:(opHits+clHits*1.5)>=2?68:(opHits+clHits*1.5)>=1?45:10;
+
+  // 6. PUNCTUATION RATIO
+  const commas=(txt.match(/،|,/g)||[]).length;
+  const colons=(txt.match(/:|؛|;/g)||[]).length;
+  const punctRatio=(commas+colons*1.5)/(sentences.length||1);
+  let punctScore=punctRatio>3.5?75:punctRatio>2.5?58:punctRatio>1.5?38:punctRatio>0.8?20:30;
+
+  // WEIGHTED — no random jitter
+  const raw=ttrScore*0.18+sentScore*0.22+burstScore*0.15+transScore*0.22+patternScore*0.18+punctScore*0.05;
+  const final=Math.max(6,Math.min(95,Math.round(raw)));
+
+  return{score:final,wordCount:words.length,sentCount:sentences.length,uniqueWords:unique.size,avgSentLen:Math.round(sAvg*10)/10,
+    indicators:{
+      ttr:{val:`${Math.round(ttr*100)}%`,score:ttrScore,label:lang==='ar'?'تنوع المفردات':'Lexical Diversity'},
+      sent:{val:Math.round(sStd*10)/10,score:sentScore,label:lang==='ar'?'تنوع الجمل':'Sent. Variance'},
+      burst:{val:transHits,score:burstScore,label:lang==='ar'?'انتظام الجمل':'Burstiness'},
+      trans:{val:transHits,score:transScore,label:lang==='ar'?'أدوات الربط':'Transitions'},
+      pattern:{val:opHits+clHits,score:patternScore,label:lang==='ar'?'أنماط AI':'AI Patterns'},
+      punct:{val:Math.round(punctRatio*10)/10,score:punctScore,label:lang==='ar'?'الترقيم':'Punctuation'},
+    }
+  };
 }
 
 function showTxtResult(r){
