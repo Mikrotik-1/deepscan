@@ -946,6 +946,8 @@ function onTxtInput(){const w=document.getElementById('txtInput').value.trim().s
 function animSteps(id,steps){const c=document.getElementById(id);c.innerHTML='';steps.forEach((s,i)=>{const d=document.createElement('div');d.className='l-step';d.innerHTML=`<div class="l-dot"></div>${s}`;c.appendChild(d);setTimeout(()=>{d.classList.add('on');if(i>0){c.children[i-1].classList.remove('on');c.children[i-1].classList.add('ok');}if(i===steps.length-1)setTimeout(()=>{d.classList.remove('on');d.classList.add('ok');},600);},( i+1)*700);});}
 
 
+const SE_USER='844021272', SE_SECRET='NKPBxk5bmutUmc2dzbAYw5j49RKPBH9Q';
+
 async function runImg(){
   if(!window._dsUser){openAuth();return;}
   if(!window._dsAuth.canAnalyze()){alert(lang==='ar'?'وصلت للحد اليومي (3 تحليلات). جرب بكرة!':'Daily limit reached. Try tomorrow!');return;}
@@ -953,129 +955,83 @@ async function runImg(){
   document.getElementById('imgBtn').classList.remove('show');
   document.getElementById('imgLoad').classList.add('show');
   document.getElementById('imgRes').classList.remove('show');
-  const steps=lang==='ar'?['استخراج بيانات الصورة...','فحص بيانات EXIF...','تحليل الضوضاء والبكسلات...','فحص توزيع الألوان...','تحليل نمط الحواف...','حساب مؤشرات AI...','إنشاء التقرير...']:['Extracting image data...','Checking EXIF...','Analyzing noise & pixels...','Color distribution...','Edge pattern analysis...','Computing AI score...','Generating report...'];
+  const steps=lang==='ar'?['رفع الصورة للتحليل...','فحص بصمة الذكاء الاصطناعي...','تحليل الأنماط البصرية...','مقارنة مع نماذج AI...','إنشاء التقرير...']:['Uploading image...','Checking AI fingerprint...','Analyzing visual patterns...','Comparing with AI models...','Generating report...'];
   animSteps('imgSteps',steps);
-  const result=await analyzeImageDeep(currentFile);
-  setTimeout(()=>{document.getElementById('imgLoad').classList.remove('show');showImgResult(result);window._dsAuth.incUsage();},5200);
+  try {
+    const result = await analyzeImageSightengine(currentFile);
+    document.getElementById('imgLoad').classList.remove('show');
+    showImgResult(result);
+    window._dsAuth.incUsage();
+  } catch(err) {
+    document.getElementById('imgLoad').classList.remove('show');
+    document.getElementById('imgBtn').classList.add('show');
+    alert(lang==='ar'?'حدث خطأ في التحليل: '+err.message:'Analysis error: '+err.message);
+  }
 }
 
-async function analyzeImageDeep(file){
-  return new Promise(resolve=>{
-    const img=new Image();const url=URL.createObjectURL(file);
-    img.onload=()=>{
-      const MAX=800;const ratio=Math.min(MAX/img.width,MAX/img.height,1);
-      const canvas=document.createElement('canvas');
-      canvas.width=Math.round(img.width*ratio);canvas.height=Math.round(img.height*ratio);
-      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);
-      const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-      URL.revokeObjectURL(url);
-      const W=canvas.width,H=canvas.height;
-
-      // 1. BLOCK VARIANCE ANALYSIS (DCT-like)
-      // AI images are too smooth — low high-frequency blocks
-      // Real photos have sensor noise creating varied blocks
-      let hfBlocks=0,totalBlocks=0;
-      const bs=8;
-      for(let by=0;by<H-bs;by+=bs){for(let bx=0;bx<W-bs;bx+=bs){
-        let bMean=0,n2=0;
-        for(let y=by;y<by+bs;y++){for(let x=bx;x<bx+bs;x++){
-          bMean+=(data[(y*W+x)*4]*0.299+data[(y*W+x)*4+1]*0.587+data[(y*W+x)*4+2]*0.114);n2++;
-        }}
-        bMean/=n2;let bVar=0;
-        for(let y=by;y<by+bs;y++){for(let x=bx;x<bx+bs;x++){
-          const g=data[(y*W+x)*4]*0.299+data[(y*W+x)*4+1]*0.587+data[(y*W+x)*4+2]*0.114;
-          bVar+=Math.pow(g-bMean,2);
-        }}
-        if(bVar/n2>180)hfBlocks++;totalBlocks++;
-      }}
-      const hfRatio=hfBlocks/(totalBlocks||1);
-      // Real: 0.25-0.60 | AI smooth: <0.18 | AI over-sharp: >0.65
-      let freqScore=hfRatio<0.10?85:hfRatio<0.18?70:hfRatio<0.28?48:hfRatio<0.55?15:52;
-
-      // 2. RGB CHANNEL CORRELATION
-      // AI: channels very correlated (model generates coherent colors)
-      // Real camera: slight channel independence from sensor
-      const stp=Math.max(4,Math.floor((W*H)/6000))*4;
-      let rA=[],gA=[],bA=[];
-      for(let i=0;i<data.length;i+=stp){rA.push(data[i]);gA.push(data[i+1]);bA.push(data[i+2]);}
-      const avg=a=>a.reduce((s,v)=>s+v,0)/a.length;
-      const rM=avg(rA),gM=avg(gA),bM=avg(bA);
-      let rgC=0,rV=0,gV=0,bV=0;
-      for(let i=0;i<rA.length;i++){rgC+=(rA[i]-rM)*(gA[i]-gM);rV+=Math.pow(rA[i]-rM,2);gV+=Math.pow(gA[i]-gM,2);bV+=Math.pow(bA[i]-bM,2);}
-      const nn=rA.length;
-      const corrRG=rgC/nn/Math.sqrt(rV/nn*gV/nn+0.001);
-      const corrRB=(rA.reduce((s,v,i)=>{return s+(v-rM)*(bA[i]-bM);},0)/nn)/Math.sqrt(rV/nn*bV/nn+0.001);
-      const corr=(Math.abs(corrRG)+Math.abs(corrRB))/2;
-      let corrScore=corr>0.97?75:corr>0.93?60:corr>0.86?38:corr>0.76?18:32;
-
-      // 3. TEXTURE ENTROPY UNIFORMITY
-      // AI: all regions have similar, smooth entropy (uniform texture)
-      // Real: entropy varies significantly across regions
-      const ents=[];
-      for(let ry=0;ry<3;ry++){for(let rx=0;rx<3;rx++){
-        const rw2=Math.floor(W/3),rh2=Math.floor(H/3);
-        const hist=new Array(32).fill(0);let cnt=0;
-        for(let y=ry*rh2;y<Math.min((ry+1)*rh2,H);y+=2){for(let x=rx*rw2;x<Math.min((rx+1)*rw2,W);x+=2){
-          const idx=(y*W+x)*4;
-          hist[Math.min(31,Math.floor((data[idx]*.299+data[idx+1]*.587+data[idx+2]*.114)/8))]++;cnt++;
-        }}
-        let e=0;hist.forEach(v=>{if(v>0){const p=v/cnt;e-=p*Math.log2(p);}});ents.push(e);
-      }}
-      const eM=avg(ents);
-      const eStd=Math.sqrt(ents.reduce((s,v)=>s+Math.pow(v-eM,2),0)/ents.length);
-      let entropyScore=eStd<0.12?82:eStd<0.25?65:eStd<0.50?35:15;
-
-      // 4. SOBEL EDGE COEFFICIENT OF VARIATION
-      // AI: unnaturally consistent edge magnitudes (clean, perfect edges)
-      // Real: high variation in edge strength (organic, noisy)
-      const eVals=[];
-      for(let y=2;y<H-2;y+=3){for(let x=2;x<W-2;x+=3){
-        const gx=-data[((y-1)*W+(x-1))*4]+data[((y-1)*W+(x+1))*4]-2*data[(y*W+(x-1))*4]+2*data[(y*W+(x+1))*4]-data[((y+1)*W+(x-1))*4]+data[((y+1)*W+(x+1))*4];
-        const gy=-data[((y-1)*W+(x-1))*4]-2*data[((y-1)*W+x)*4]-data[((y-1)*W+(x+1))*4]+data[((y+1)*W+(x-1))*4]+2*data[((y+1)*W+x)*4]+data[((y+1)*W+(x+1))*4];
-        eVals.push(Math.sqrt(gx*gx+gy*gy)/4);
-      }}
-      const eMn=avg(eVals);
-      const eCv=Math.sqrt(eVals.reduce((s,v)=>s+Math.pow(v-eMn,2),0)/eVals.length)/(eMn+0.01);
-      let edgeScore=eCv<0.75?80:eCv<1.1?58:eCv<1.7?28:15;
-
-      // 5. FILE SIGNATURE (dimensions + compression ratio)
-      const bytesPerPx=file.size/(img.width*img.height);
-      const aiDims=[[512,512],[768,512],[512,768],[1024,1024],[1024,768],[768,1024],[1344,768],[768,1344],[1536,1024],[1024,1536],[2048,2048],[1920,1080],[1080,1920]];
-      const isPow2=(n)=>n>0&&(n&(n-1))===0;
-      const matchAIDim=aiDims.some(([w,h])=>Math.abs(img.width-w)<3&&Math.abs(img.height-h)<3);
-      const bothPow2=isPow2(img.width)&&isPow2(img.height);
-      let dimScore=matchAIDim?78:bothPow2?62:18;
-      // JPEG compression ratio: AI images often very smooth -> compress better
-      if(file.type==='image/jpeg'&&bytesPerPx<0.20)dimScore=Math.max(dimScore,68);
-      else if(file.type==='image/jpeg'&&bytesPerPx>0.8&&bytesPerPx<2.5)dimScore=Math.min(dimScore,30);
-
-      // 6. METADATA / FILENAME
-      const fn=file.name.toLowerCase();
-      const aiSig=/midjourney|dalle|dall.e|stablediff|stable.diff|generated|comfyui|flux|firefly|imagen|ideogram|leonardo|runway|sora|ai.gen/.test(fn);
-      const realSig=/img_\d|dsc_\d|_dsc\d|photo_\d|\d{8}_\d{6}|wp_\d{5}|burst|live.photo/.test(fn);
-      let metaScore=aiSig?90:realSig?8:45;
-
-      // FINAL WEIGHTED SCORE — no random jitter, pure signal
-      let pixel=freqScore*0.28+corrScore*0.20+entropyScore*0.22+edgeScore*0.18+dimScore*0.12;
-      let final;
-      if(aiSig)final=Math.round(pixel*0.35+90*0.65);
-      else if(realSig)final=Math.round(pixel*0.55+10*0.45);
-      else final=Math.round(pixel*0.85+metaScore*0.15);
-      final=Math.max(6,Math.min(95,final));
-
-      resolve({score:final,width:img.width,height:img.height,fileSize:(file.size/1024/1024).toFixed(2),
-        indicators:{
-          freq:{val:`${Math.round(hfRatio*100)}%`,score:freqScore,label:lang==='ar'?'نمط الترددات':'Freq. Pattern'},
-          corr:{val:Math.round(corr*100)/100,score:corrScore,label:lang==='ar'?'ترابط الألوان':'Color Corr.'},
-          entropy:{val:Math.round(eStd*100)/100,score:entropyScore,label:lang==='ar'?'توحيد القوام':'Texture'},
-          edge:{val:Math.round(eCv*100)/100,score:edgeScore,label:lang==='ar'?'اتساق الحواف':'Edge Cons.'},
-          dim:{val:`${img.width}×${img.height}`,score:dimScore,label:lang==='ar'?'أبعاد الصورة':'Dimensions'},
-          meta:{val:aiSig?'AI':realSig?'📷':'—',score:metaScore,label:lang==='ar'?'البيانات الوصفية':'Metadata'},
-        }
-      });
-    };img.src=URL.createObjectURL(file);
+async function analyzeImageSightengine(file){
+  // Convert file to base64
+  const b64 = await new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
   });
+
+  // Call Sightengine API
+  const formData = new FormData();
+  formData.append('media', file, file.name);
+  formData.append('models', 'genai');
+  formData.append('api_user', SE_USER);
+  formData.append('api_secret', SE_SECRET);
+
+  const resp = await fetch('https://api.sightengine.com/1.0/check.json', {
+    method: 'POST',
+    body: formData
+  });
+
+  if(!resp.ok) throw new Error('API error: '+resp.status);
+  const data = await resp.json();
+  if(data.status==='failure') throw new Error(data.error?.message || 'API failure');
+
+  // Parse Sightengine response
+  // data.type.ai_generated = probability 0-1 that image is AI generated
+  const aiProb = data.type?.ai_generated ?? 0;
+  const score = Math.round(aiProb * 100);
+
+  // Build indicators from available data
+  const indicators = {
+    ai_gen: {
+      val: `${Math.round(aiProb*100)}%`,
+      score: Math.round(aiProb*100),
+      label: lang==='ar'?'احتمال صورة AI':'AI Generated'
+    },
+    natural: {
+      val: `${Math.round((1-aiProb)*100)}%`,
+      score: Math.round((1-aiProb)*100),
+      label: lang==='ar'?'طبيعية':'Natural'
+    },
+    quality: {
+      val: data.quality?.score ? Math.round(data.quality.score*100)+'%' : '—',
+      score: data.quality?.score ? Math.round(data.quality.score*100) : 50,
+      label: lang==='ar'?'جودة الصورة':'Image Quality'
+    },
+    src: {
+      val: aiProb>0.5?'AI':'📷',
+      score: aiProb>0.5?Math.round(aiProb*100):Math.round((1-aiProb)*100),
+      label: lang==='ar'?'المصدر':'Source'
+    }
+  };
+
+  return {
+    score,
+    width: 0, height: 0,
+    fileSize: (file.size/1024/1024).toFixed(2),
+    source: 'sightengine',
+    indicators
+  };
 }
+
 
 function showImgResult(r){
   const res=document.getElementById('imgRes');
@@ -1105,14 +1061,82 @@ function resetImg(){currentFile=null;document.getElementById('prevBox').style.di
 async function runTxt(){
   if(!window._dsUser){openAuth();return;}
   if(!window._dsAuth.canAnalyze()){alert(lang==='ar'?'وصلت للحد اليومي':'Daily limit reached');return;}
-  const txt=document.getElementById('txtInput').value.trim();const words=txt.split(/\s+/).filter(x=>x);
+  const txt=document.getElementById('txtInput').value.trim();
+  const words=txt.split(/\s+/).filter(x=>x);
   if(words.length<30){alert(lang==='ar'?'أدخل 30 كلمة على الأقل':'Enter at least 30 words');return;}
-  document.getElementById('txtBtn').classList.remove('show');document.getElementById('txtLoad').classList.add('show');document.getElementById('txtRes').classList.remove('show');
-  const steps=lang==='ar'?['تحليل بنية الجمل...','قياس التنوع المعجمي...','كشف الأنماط المتكررة...','فحص أدوات الربط...','مقارنة بأنماط AI...','إنشاء التقرير...']:['Analyzing sentences...','Measuring lexical diversity...','Detecting patterns...','Checking transitions...','Comparing to AI patterns...','Generating report...'];
+  document.getElementById('txtBtn').classList.remove('show');
+  document.getElementById('txtLoad').classList.add('show');
+  document.getElementById('txtRes').classList.remove('show');
+  const steps=lang==='ar'?['إرسال النص للتحليل...','فحص أنماط الكتابة...','مقارنة مع نماذج AI...','تحليل البنية اللغوية...','إنشاء التقرير...']:['Sending text...','Checking writing patterns...','Comparing with AI models...','Linguistic analysis...','Generating report...'];
   animSteps('txtSteps',steps);
-  const result=analyzeTextDeep(txt,words);
-  setTimeout(()=>{document.getElementById('txtLoad').classList.remove('show');showTxtResult(result);window._dsAuth.incUsage();},5000);
+  try {
+    const result = await analyzeTextSightengine(txt, words);
+    document.getElementById('txtLoad').classList.remove('show');
+    showTxtResult(result);
+    window._dsAuth.incUsage();
+  } catch(err) {
+    // Fallback to local analysis if API fails
+    const result = analyzeTextDeep(txt, words);
+    document.getElementById('txtLoad').classList.remove('show');
+    showTxtResult(result);
+    window._dsAuth.incUsage();
+  }
 }
+
+async function analyzeTextSightengine(txt, words){
+  const formData = new FormData();
+  formData.append('text', txt);
+  formData.append('lang', 'en,ar');
+  formData.append('models', 'genai');
+  formData.append('api_user', SE_USER);
+  formData.append('api_secret', SE_SECRET);
+
+  const resp = await fetch('https://api.sightengine.com/1.0/text/check.json', {
+    method: 'POST',
+    body: formData
+  });
+
+  if(!resp.ok) throw new Error('API error: '+resp.status);
+  const data = await resp.json();
+  if(data.status==='failure') throw new Error(data.error?.message || 'API failure');
+
+  const aiProb = data.ai_generated?.score ?? data.type?.ai_generated ?? 0;
+  const score = Math.round(aiProb * 100);
+
+  const indicators = {
+    ai_gen: {
+      val: `${Math.round(aiProb*100)}%`,
+      score: Math.round(aiProb*100),
+      label: lang==='ar'?'احتمال كتابة AI':'AI Written'
+    },
+    human: {
+      val: `${Math.round((1-aiProb)*100)}%`,
+      score: Math.round((1-aiProb)*100),
+      label: lang==='ar'?'كتابة بشرية':'Human Written'
+    },
+    words_lbl: {
+      val: words.length,
+      score: Math.min(100, words.length),
+      label: lang==='ar'?'عدد الكلمات':'Word Count'
+    },
+    confidence: {
+      val: aiProb > 0.7 || aiProb < 0.3 ? (lang==='ar'?'عالية':'High') : (lang==='ar'?'متوسطة':'Medium'),
+      score: aiProb > 0.7 || aiProb < 0.3 ? 85 : 50,
+      label: lang==='ar'?'الثقة':'Confidence'
+    }
+  };
+
+  return {
+    score,
+    wordCount: words.length,
+    sentCount: txt.split(/[.!?؟!]+/).filter(s=>s.trim().length>3).length,
+    uniqueWords: new Set(words.map(w=>w.toLowerCase())).size,
+    avgSentLen: Math.round(words.length / Math.max(1, txt.split(/[.!?؟!]+/).filter(s=>s.trim().length>3).length)),
+    source: 'sightengine',
+    indicators
+  };
+}
+
 
 function analyzeTextDeep(txt,words){
   const sentences=txt.split(/[.!?؟!]+/).filter(s=>s.trim().length>3);
